@@ -26,7 +26,7 @@ class JiraTimeMachine:
 
         for issue in tqdm(issues, desc="Processing issues"):
             issue_id = issue.key
-            created_at = pd.to_datetime(issue.fields.created).tz_localize(None)
+            created_at = pd.to_datetime(issue.fields.created)
             changelog = issue.changelog.histories
 
             # Add the initial state
@@ -41,7 +41,7 @@ class JiraTimeMachine:
 
             # Add changes from changelog
             for change in changelog:
-                change_date = pd.to_datetime(change.created).tz_localize(None)
+                change_date = pd.to_datetime(change.created)
                 for item in change.items:
                     if item.field in fields_to_track:
                         history_data.append({
@@ -58,7 +58,7 @@ class JiraTimeMachine:
             # Add the current state
             current_state = {field: getattr(issue.fields, field, None) for field in fields_to_track}
             current_state.update({
-                "date": pd.Timestamp.now().tz_localize(None),
+                "date": pd.Timestamp.utcnow(),
                 "issue_id": issue_id,
                 "type": "current",
                 "author": "System"
