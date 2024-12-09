@@ -1,0 +1,10 @@
+# Core dependencies
+jira>=3.4.0      # Library to interact with Jira
+pandas>=1.3.0    # For data manipulation
+numpy>=1.21.0    # For numerical operations
+tqdm>=4.64.0     # For progress bars
+
+# Testing and development dependencies
+pytest>=7.0.0    # Testing framework
+pytest-mock>=3.6.0  # For pytest mocking utilities
+mock>=4.0.0      # For mocking in older Python versions
