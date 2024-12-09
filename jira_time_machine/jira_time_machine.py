@@ -82,10 +82,9 @@ class JiraTimeMachine:
             pd.DataFrame: A snapshot of the backlog at the given timestamp.
         """
         snapshot = (
-            history_df[history_df['date'] <= dt]
+            history_df[history_df['date'] > dt]
             .sort_values('date')
             .groupby('issue_id')
-            .last()
-            .reset_index()
+            .first()
         )
         return snapshot
