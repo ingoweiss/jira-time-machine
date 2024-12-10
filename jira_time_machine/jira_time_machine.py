@@ -4,11 +4,11 @@ from tqdm import tqdm
 import numpy as np
 
 class JiraTimeMachine:
-    def __init__(self, server, username, password):
+    def __init__(self, jira_instance):
         """
-        Initialize the JiraTimeMachine instance with server, username, and password.
+        Initialize the JiraTimeMachine instance with a jiRA instance.
         """
-        self.jira = JIRA(server=server, basic_auth=(username, password))
+        self.jira = jira_instance
 
     def fetch_backlog_history(self, jql_query, fields_to_track):
         """
