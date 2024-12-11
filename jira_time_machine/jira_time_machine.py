@@ -30,12 +30,12 @@ class JiraTimeMachine:
             changelog = issue.changelog.histories
 
             # Add the initial state
-            initial_state = {("Tracked Fields", field): np.NaN for field in fields_to_track}
+            initial_state = {("Tracked", field): np.NaN for field in fields_to_track}
             initial_state.update({
-                ("Record", "issue_id"): issue_id,
-                ("Record", "type"): "created",
-                ("Record", "date"): created_at,
-                ("Record", "author"): getattr(issue.fields.reporter, "displayName", "Unknown")
+                "issue_id": issue_id,
+                "type": "created",
+                "date": created_at,
+                "author": getattr(issue.fields.reporter, "displayName", "Unknown")
             })
             history_data.append(initial_state)
 
@@ -45,30 +45,27 @@ class JiraTimeMachine:
                 for item in change.items:
                     if item.field in fields_to_track:
                         history_data.append({
-                            ("Record" ,"issue_id"): issue_id,
-                            ("Record" ,"type"): "change",
-                            ("Record" ,"date"): change_date,
-                            ("Change" ,"field"): item.field,
-                            ("Change" ,"from"): item.fromString,
-                            ("Change" ,"to"): item.toString,
-                            ("Change" ,"author"): getattr(change.author, "displayName", "Unknown")
+                            "issue_id": issue_id,
+                            "type": "change",
+                            "date": change_date,
+                            "field": item.field,
+                            "from": item.fromString,
+                            "to": item.toString,
+                            "author": getattr(change.author, "displayName", "Unknown")
                         })
 
             # Add the current state
-            current_state = {("Tracked Fields", field): getattr(issue.fields, field, np.NaN) for field in fields_to_track}
+            current_state = {("Tracked", field): getattr(issue.fields, field, np.NaN) for field in fields_to_track}
             current_state.update({
-                ("Record", "date"): pd.Timestamp.utcnow(),
-                ("Record", "issue_id"): issue_id,
-                ("Record", "type"): "current",
-                ("Record", "author"): "System"
+                "date": pd.Timestamp.utcnow(),
+                "issue_id": issue_id,
+                "type": "current",
+                "author": "System"
             })
             history_data.append(current_state)
 
         history_df = pd.DataFrame(history_data)
-        multi_tuples = [('Record','issue_id'), ('Record','type'), ('Record','date'), ('Record','author'), ('Change','field'), ('Change','from'), ('Change','to')] + [('Tracked Fields', field) for field in fields_to_track]
-        multi_cols = pd.MultiIndex.from_tuples(multi_tuples, names=['Section', 'Field'])
-        history_df = pd.DataFrame(history_df, columns=multi_cols)
-        history_df.sort_values(by=[("Record", "issue_id"), ("Record", "date")], inplace=True)
+        history_df.sort_values(by=["issue_id", "date"], inplace=True)
 
         return history_df
 
