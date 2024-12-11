@@ -64,25 +64,25 @@ class JiraTimeMachine:
             })
             history_data.append(current_state)
 
-        history_df = pd.DataFrame(history_data)
-        history_df.sort_values(by=["issue_id", "date"], inplace=True)
-        history_df = history_df[['issue_id', 'type', 'date', 'author', 'field', 'from', 'to'] + [("Tracked", field) for field in tracked_fields]]
+        history = pd.DataFrame(history_data)
+        history.sort_values(by=["issue_id", "date"], inplace=True)
+        history = history[['issue_id', 'type', 'date', 'author', 'field', 'from', 'to'] + [("Tracked", field) for field in tracked_fields]]
 
-        return history_df
+        return history
 
-    def get_snapshot(self, history_df, dt):
+    def get_snapshot(self, history, dt):
         """
         Get the snapshot of the backlog at a specific timestamp.
 
         Args:
-            history_df (pd.DataFrame): The history DataFrame.
+            history (pd.DataFrame): The history DataFrame.
             dt (pd.Timestamp): The timestamp for the snapshot.
 
         Returns:
             pd.DataFrame: A snapshot of the backlog at the given timestamp.
         """
         snapshot = (
-            history_df[history_df["date"] > dt]
+            history[history["date"] > dt]
             .sort_values("date")
             .groupby("issue_id")
             .first()
