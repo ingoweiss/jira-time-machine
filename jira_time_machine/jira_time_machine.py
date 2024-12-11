@@ -66,6 +66,7 @@ class JiraTimeMachine:
 
         history_df = pd.DataFrame(history_data)
         history_df.sort_values(by=["issue_id", "date"], inplace=True)
+        history_df = history_df[['issue_id', 'type', 'date', 'author', 'field', 'from', 'to'] + [("Tracked", field) for field in tracked_fields]]
 
         return history_df
 
