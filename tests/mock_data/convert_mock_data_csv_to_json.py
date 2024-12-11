@@ -30,8 +30,9 @@ def convert_csv_to_mock_json(input_csv, output_json):
             }
         }
 
+        # Process rows
         for _, row in group.iterrows():
-            # Handle 'created' and 'current' fields
+            # Handle 'created' rows
             if row['type'] == 'created':
                 issue_data["fields"]["created"] = row["date"]
                 issue_data["fields"]["reporter"]["displayName"] = row["author"]
@@ -40,12 +41,7 @@ def convert_csv_to_mock_json(input_csv, output_json):
                 issue_data["fields"]["priority"] = row["priority"]
                 issue_data["fields"]["type"] = row["type"]
 
-            elif row['type'] == 'current':
-                issue_data["fields"]["status"] = row["status"]
-                issue_data["fields"]["priority"] = row["priority"]
-                issue_data["fields"]["assignee"]["displayName"] = row["assignee"]
-
-            # Handle changes
+            # Handle 'change' rows
             elif row['type'] == 'change':
                 change_item = {
                     "created": row["date"],
@@ -59,6 +55,12 @@ def convert_csv_to_mock_json(input_csv, output_json):
                     ]
                 }
                 issue_data["changelog"]["histories"].append(change_item)
+
+        # Handle 'current' rows (process last to ensure they overwrite earlier fields)
+        for _, row in group[group["type"] == "current"].iterrows():
+            issue_data["fields"]["status"] = row["status"]
+            issue_data["fields"]["priority"] = row["priority"]
+            issue_data["fields"]["assignee"]["displayName"] = row["assignee"]
 
         mock_data["issues"].append(issue_data)
 
