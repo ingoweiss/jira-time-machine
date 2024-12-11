@@ -30,12 +30,12 @@ class JiraTimeMachine:
             changelog = issue.changelog.histories
 
             # Add the initial state
-            initial_state = {field: None for field in fields_to_track}
+            initial_state = {("Tracked Fields", field): None for field in fields_to_track}
             initial_state.update({
-                "date": created_at,
-                "issue_id": issue_id,
-                "type": "created",
-                "author": getattr(issue.fields.reporter, "displayName", "Unknown")
+                ("Record", "issue_id"): issue_id,
+                ("Record", "type"): "created",
+                ("Record", "date"): created_at,
+                ("Record", "author"): getattr(issue.fields.reporter, "displayName", "Unknown")
             })
             history_data.append(initial_state)
 
@@ -45,29 +45,32 @@ class JiraTimeMachine:
                 for item in change.items:
                     if item.field in fields_to_track:
                         history_data.append({
-                            item.field: item.fromString,
-                            "type": "change",
-                            "date": change_date,
-                            "issue_id": issue_id,
-                            "field": item.field,
-                            "from": item.fromString,
-                            "to": item.toString,
-                            "author": getattr(change.author, "displayName", "Unknown")
+                            ("Record" ,"issue_id"): issue_id,
+                            # ("Change", item.field): item.toString,
+                            ("Record" ,"type"): "change",
+                            ("Record" ,"date"): change_date,
+                            ("Change" ,"field"): item.field,
+                            ("Change" ,"from"): item.fromString,
+                            ("Change" ,"to"): item.toString,
+                            ("Change" ,"author"): getattr(change.author, "displayName", "Unknown")
                         })
 
             # Add the current state
-            current_state = {field: getattr(issue.fields, field, None) for field in fields_to_track}
+            current_state = {("Tracked Fields", field): getattr(issue.fields, field, None) for field in fields_to_track}
             current_state.update({
-                "date": pd.Timestamp.utcnow(),
-                "issue_id": issue_id,
-                "type": "current",
-                "author": "System"
+                ("Record", "date"): pd.Timestamp.utcnow(),
+                ("Record", "issue_id"): issue_id,
+                ("Record", "type"): "current",
+                ("Record", "author"): "System"
             })
             history_data.append(current_state)
 
         history_df = pd.DataFrame(history_data)
-        history_df.sort_values(by=["issue_id", "date", "type"], inplace=True)
-        history_df[fields_to_track] = history_df.groupby("issue_id")[fields_to_track].bfill()
+        multi_tuples = [('Record','issue_id'), ('Record','type'), ('Record','date'), ('Record','author'), ('Change','field'), ('Change','from'), ('Change','to')] + [('Tracked Fields', field) for field in fields_to_track]
+        multi_cols = pd.MultiIndex.from_tuples(multi_tuples, names=['Section', 'Field'])
+        history_df = pd.DataFrame(history_df, columns=multi_cols)
+        # history_df.sort_values(by=["issue_id", "date", "type"], inplace=True)
+        # history_df[fields_to_track] = history_df.groupby("issue_id")[fields_to_track].bfill()
         return history_df
 
     def get_snapshot(self, history_df, dt):
@@ -82,9 +85,9 @@ class JiraTimeMachine:
             pd.DataFrame: A snapshot of the backlog at the given timestamp.
         """
         snapshot = (
-            history_df[history_df['date'] > dt]
-            .sort_values('date')
-            .groupby('issue_id')
+            history_df[history_df["date"] > dt]
+            .sort_values("date")
+            .groupby("issue_id")
             .first()
         )
         return snapshot
