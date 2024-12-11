@@ -10,13 +10,13 @@ class JiraTimeMachine:
         """
         self.jira = jira_instance
 
-    def fetch_backlog_history(self, jql_query, fields_to_track):
+    def history(self, jql_query, tracked_fields):
         """
         Fetch the full change history of Jira issues for specified fields.
 
         Args:
             jql_query (str): JQL query to select issues.
-            fields_to_track (list): List of Jira fields to track changes for.
+            tracked_fields (list): List of Jira fields to track changes for.
 
         Returns:
             pd.DataFrame: A DataFrame with issue states over time.
@@ -30,7 +30,7 @@ class JiraTimeMachine:
             changelog = issue.changelog.histories
 
             # Add the initial state
-            initial_state = {("Tracked", field): np.NaN for field in fields_to_track}
+            initial_state = {("Tracked", field): np.NaN for field in tracked_fields}
             initial_state.update({
                 "issue_id": issue_id,
                 "type": "created",
@@ -43,7 +43,7 @@ class JiraTimeMachine:
             for change in changelog:
                 change_date = pd.to_datetime(change.created)
                 for item in change.items:
-                    if item.field in fields_to_track:
+                    if item.field in tracked_fields:
                         history_data.append({
                             "issue_id": issue_id,
                             "type": "change",
@@ -55,7 +55,7 @@ class JiraTimeMachine:
                         })
 
             # Add the current state
-            current_state = {("Tracked", field): getattr(issue.fields, field, np.NaN) for field in fields_to_track}
+            current_state = {("Tracked", field): getattr(issue.fields, field, np.NaN) for field in tracked_fields}
             current_state.update({
                 "date": pd.Timestamp.utcnow(),
                 "issue_id": issue_id,
