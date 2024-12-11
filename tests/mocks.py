@@ -14,9 +14,12 @@ class MockIssue:
         self.key = issue_data["key"]
         self.fields = MagicMock()
         self.fields.created = issue_data["fields"]["created"]
-        self.fields.reporter = MagicMock(displayName=issue_data["fields"].get("reporter", {}).get("displayName", "Unknown"))
-        for field, value in issue_data["fields"].items():
-            setattr(self.fields, field, value)
+        self.fields.reporter = MagicMock(displayName=issue_data["fields"]["reporter"]["displayName"])
+        self.fields.assignee = MagicMock(displayName=issue_data["fields"]["assignee"]["displayName"])
+        self.fields.status = issue_data["fields"]["status"]
+        self.fields.priority = issue_data["fields"]["priority"]
+        self.fields.type = issue_data["fields"]["type"]
+        self.fields.summary = issue_data["fields"]["summary"]
         self.changelog = MockChangelog(issue_data.get("changelog", {}))
 
 class MockChangelog:
