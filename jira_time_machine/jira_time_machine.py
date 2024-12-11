@@ -30,7 +30,7 @@ class JiraTimeMachine:
             changelog = issue.changelog.histories
 
             # Add the initial state
-            initial_state = {("Tracked Fields", field): None for field in fields_to_track}
+            initial_state = {("Tracked Fields", field): np.NaN for field in fields_to_track}
             initial_state.update({
                 ("Record", "issue_id"): issue_id,
                 ("Record", "type"): "created",
@@ -46,7 +46,6 @@ class JiraTimeMachine:
                     if item.field in fields_to_track:
                         history_data.append({
                             ("Record" ,"issue_id"): issue_id,
-                            # ("Change", item.field): item.toString,
                             ("Record" ,"type"): "change",
                             ("Record" ,"date"): change_date,
                             ("Change" ,"field"): item.field,
@@ -56,7 +55,7 @@ class JiraTimeMachine:
                         })
 
             # Add the current state
-            current_state = {("Tracked Fields", field): getattr(issue.fields, field, None) for field in fields_to_track}
+            current_state = {("Tracked Fields", field): getattr(issue.fields, field, np.NaN) for field in fields_to_track}
             current_state.update({
                 ("Record", "date"): pd.Timestamp.utcnow(),
                 ("Record", "issue_id"): issue_id,
@@ -69,8 +68,8 @@ class JiraTimeMachine:
         multi_tuples = [('Record','issue_id'), ('Record','type'), ('Record','date'), ('Record','author'), ('Change','field'), ('Change','from'), ('Change','to')] + [('Tracked Fields', field) for field in fields_to_track]
         multi_cols = pd.MultiIndex.from_tuples(multi_tuples, names=['Section', 'Field'])
         history_df = pd.DataFrame(history_df, columns=multi_cols)
-        # history_df.sort_values(by=["issue_id", "date", "type"], inplace=True)
-        # history_df[fields_to_track] = history_df.groupby("issue_id")[fields_to_track].bfill()
+        history_df.sort_values(by=[("Record", "issue_id"), ("Record", "date")], inplace=True)
+
         return history_df
 
     def get_snapshot(self, history_df, dt):
