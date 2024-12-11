@@ -33,7 +33,7 @@ class JiraTimeMachine:
             initial_state = {("Tracked", field): np.NaN for field in tracked_fields}
             initial_state.update({
                 "issue_id": issue_id,
-                "type": "created",
+                "type": "initial",
                 "date": created_at,
                 "author": getattr(issue.fields.reporter, "displayName", "Unknown")
             })

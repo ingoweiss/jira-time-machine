@@ -20,7 +20,7 @@ def test_history(jira_time_machine):
 
     records = history_df[history_df["issue_id"] == "PROJ-0001"]
     assert len(records) == 4, "Should have 5 records for PROJ-0001"
-    assert len(records[records["type"] == "created"]) == 1, "Should have 1 'created' record for PROJ-0001"
+    assert len(records[records["type"] == "initial"]) == 1, "Should have 1 'initial' record for PROJ-0001"
     assert len(records[records["type"] == "change"]) == 2, "Should have 2 'change' records for PROJ-0001"
     assert len(records[records["type"] == "current"]) == 1, "Should have 1 'current' record for PROJ-0001"
 
