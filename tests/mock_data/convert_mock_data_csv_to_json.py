@@ -32,8 +32,8 @@ def convert_csv_to_mock_json(input_csv, output_json):
         }
 
         for _, row in group.iterrows():
-            # Handle 'created' and 'current' fields
-            if row['type'] == 'created':
+            # Handle 'initial' and 'current' fields
+            if row['type'] == 'initial':
                 issue_data["fields"]["created"] = row["date"]
                 issue_data["fields"]["reporter"]["displayName"] = row["author"]
                 issue_data["fields"]["assignee"]["displayName"] = row["assignee"]

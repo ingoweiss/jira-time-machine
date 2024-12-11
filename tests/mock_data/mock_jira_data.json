@@ -12,7 +12,7 @@
                 },
                 "status": "New",
                 "priority": "Minor",
-                "type": "created",
+                "type": "initial",
                 "summary": "Bye Bye Blackbird"
             },
             "changelog": {
@@ -58,7 +58,7 @@
                 },
                 "status": "New",
                 "priority": "Major",
-                "type": "created",
+                "type": "initial",
                 "summary": "The Way you Look Tonight"
             },
             "changelog": {
