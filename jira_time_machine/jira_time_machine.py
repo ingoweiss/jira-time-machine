@@ -21,6 +21,7 @@ class JiraTimeMachine:
         Returns:
             pd.DataFrame: A DataFrame with issue states over time.
         """
+        self.tracked_fields = tracked_fields
         issues = self.jira.search_issues(jql_query, expand="changelog", maxResults=False)
         history_data = []
 
@@ -114,9 +115,11 @@ class JiraTimeMachine:
             pd.DataFrame: A snapshot of the backlog at the given timestamp.
         """
         snapshot = (
-            history[history["date"] <= dt]
-            .sort_values("date")
-            .groupby("issue_id")
-            .first()
+            history[history['date'] <= dt]
+            .sort_values('date')
+            .groupby('issue_id')
+            .last()\
+            [[('Tracked', field) for field in self.tracked_fields]]
         )
+        snapshot.columns = self.tracked_fields
         return snapshot
