@@ -36,10 +36,11 @@ def convert_csv_to_mock_json(input_csv, output_json):
             if row['type'] == 'initial':
                 issue_data["fields"]["created"] = row["date"]
                 issue_data["fields"]["reporter"]["displayName"] = row["author"]
-                issue_data["fields"]["assignee"]["displayName"] = row["assignee"]
+
+            elif row['type'] == 'current':
                 issue_data["fields"]["status"] = row["status"]
                 issue_data["fields"]["priority"] = row["priority"]
-                issue_data["fields"]["type"] = row["type"]
+                issue_data["fields"]["assignee"]["displayName"] = row["assignee"]
                 issue_data["fields"]["summary"] = row["summary"]
 
             # Handle changes

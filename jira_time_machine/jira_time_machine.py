@@ -65,10 +65,42 @@ class JiraTimeMachine:
             history_data.append(current_state)
 
         history = pd.DataFrame(history_data)
-        history.sort_values(by=["issue_id", "date"], inplace=True)
         history = history[['issue_id', 'type', 'date', 'author', 'field', 'from', 'to'] + [("Tracked", field) for field in tracked_fields]]
+        history.sort_values(by=["issue_id", "date"], inplace=True)
 
-        return history
+        final_history = pd.DataFrame(columns=history.columns)
+
+        for issue_id in history['issue_id'].unique():
+
+            issue_history = history[history['issue_id'] == issue_id]
+
+            issue_history_to = issue_history.copy()
+            issue_history_from = issue_history.copy()
+
+            changes = issue_history_to['type'] == 'change'
+            # Apply the transformation for each matching row
+            for idx in issue_history_to[changes].index:
+                field_name = issue_history_to.at[idx, 'field']  # Look up the field name
+                new_value = issue_history_to.at[idx, 'to']     # Get the value to set
+                issue_history_to.at[idx, ('Tracked', field_name)] = new_value
+
+            issue_history_to = issue_history_to.ffill()
+
+            changes = issue_history_from['type'] == 'change'
+            # Apply the transformation for each matching row
+            for idx in issue_history_from[changes].index:
+                field_name = issue_history_from.at[idx, 'field']  # Look up the field name
+                new_value = issue_history_from.at[idx, 'from']     # Get the value to set
+                issue_history_from.at[idx, ('Tracked', field_name)] = new_value
+
+            issue_history_from = issue_history_from.bfill()
+
+            issue_history_final = issue_history_to.combine_first(issue_history_from)
+            final_history = pd.concat([final_history, issue_history_final])
+
+        final_history.sort_values(by=["issue_id", "date"], inplace=True)
+
+        return final_history
 
     def get_snapshot(self, history, dt):
         """

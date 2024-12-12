@@ -32,6 +32,6 @@ def test_history(jira_time_machine):
     assert proj_0001_last_change[('Tracked', 'status')] == "Submitted", "PROJ-0001 current status should be 'Submitted'"
     assert proj_0001_last_change[('Tracked', 'priority')] == "Major", "PROJ-0001 current priority should be 'Major'"
 
-    proj_0001_created = history_df[(history_df['issue_id'] == 'PROJ-0001') & (history_df['type'] == 'change')].iloc[-1]
-    assert proj_0001_created[('Tracked', 'status')] == "New", "PROJ-0001 current status should be 'New'"
-    assert proj_0001_created[('Tracked', 'priority')] == "Minor", "PROJ-0001 current priority should be 'Minor'"
+    proj_0001_initial = history_df[(history_df['issue_id'] == 'PROJ-0001') & (history_df['type'] == 'initial')].iloc[-1]
+    assert proj_0001_initial[('Tracked', 'status')] == "New", "PROJ-0001 initial status should be 'New'"
+    assert proj_0001_initial[('Tracked', 'priority')] == "Minor", "PROJ-0001 initial priority should be 'Minor'"
