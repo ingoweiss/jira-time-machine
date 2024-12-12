@@ -69,7 +69,7 @@ class JiraTimeMachine:
         history = history[['issue_id', 'type', 'date', 'author', 'field', 'from', 'to'] + [("Tracked", field) for field in tracked_fields]]
         history.sort_values(by=["issue_id", "date"], inplace=True)
 
-        final_history = pd.DataFrame(columns=history.columns)
+        issue_histories = []
 
         for issue_id in history['issue_id'].unique():
 
@@ -97,8 +97,9 @@ class JiraTimeMachine:
             issue_history_from = issue_history_from.bfill()
 
             issue_history_final = issue_history_to.combine_first(issue_history_from)
-            final_history = pd.concat([final_history, issue_history_final])
+            issue_histories.append(issue_history_final)
 
+        final_history = pd.concat(issue_histories)
         final_history.sort_values(by=["issue_id", "date"], inplace=True)
 
         return final_history
