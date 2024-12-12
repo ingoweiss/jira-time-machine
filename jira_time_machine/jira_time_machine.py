@@ -30,7 +30,7 @@ class JiraTimeMachine:
             changelog = issue.changelog.histories
 
             # Add the initial state
-            initial_state = {("Tracked", field): np.NaN for field in tracked_fields}
+            initial_state = {("Tracked", field): np.nan for field in tracked_fields}
             initial_state.update({
                 "issue_id": issue_id,
                 "type": "initial",
@@ -55,7 +55,7 @@ class JiraTimeMachine:
                         })
 
             # Add the current state
-            current_state = {("Tracked", field): getattr(issue.fields, field, np.NaN) for field in tracked_fields}
+            current_state = {("Tracked", field): getattr(issue.fields, field, np.nan) for field in tracked_fields}
             current_state.update({
                 "date": pd.Timestamp.utcnow(),
                 "issue_id": issue_id,
@@ -114,7 +114,7 @@ class JiraTimeMachine:
             pd.DataFrame: A snapshot of the backlog at the given timestamp.
         """
         snapshot = (
-            history[history["date"] > dt]
+            history[history["date"] <= dt]
             .sort_values("date")
             .groupby("issue_id")
             .first()
