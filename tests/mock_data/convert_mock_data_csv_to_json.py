@@ -42,12 +42,6 @@ def convert_csv_to_mock_json(input_csv, output_json):
                 issue_data["fields"]["type"] = row["type"]
                 issue_data["fields"]["summary"] = row["summary"]
 
-            elif row['type'] == 'current':
-                issue_data["fields"]["status"] = row["status"]
-                issue_data["fields"]["priority"] = row["priority"]
-                issue_data["fields"]["assignee"]["displayName"] = row["assignee"]
-                issue_data["fields"]["summary"] = row["summary"]
-
             # Handle changes
             elif row['type'] == 'change':
                 change_item = {
