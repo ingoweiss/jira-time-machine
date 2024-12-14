@@ -28,19 +28,25 @@ class JiraTimeMachine:
         for issue in tqdm(issues, desc="Processing issues"):
             issue_id = issue.key
             created_at = pd.to_datetime(issue.fields.created)
+            reporter = getattr(issue.fields.reporter, "displayName", "Unknown")
             changelog = issue.changelog.histories
 
-            # Add the initial state
+            # Add the initial state with:
+            # 1. Reporter
+            # 2. Created date
+            # 3. Issue ID
+            # 4. Tracked fields with NaN values
+            # Remaining fields will be reverse engineered from the changelog
             initial_state = {("Tracked", field): np.nan for field in tracked_fields}
             initial_state.update({
                 "issue_id": issue_id,
                 "type": "initial",
                 "date": created_at,
-                "author": getattr(issue.fields.reporter, "displayName", "Unknown")
+                "author": reporter
             })
             history_data.append(initial_state)
 
-            # Add changes from changelog
+            # Add changes from changelog:
             for change in changelog:
                 change_date = pd.to_datetime(change.created)
                 for item in change.items:
@@ -55,7 +61,7 @@ class JiraTimeMachine:
                             "author": getattr(change.author, "displayName", "Unknown")
                         })
 
-            # Add the current state
+            # Add the current state which is only needed to reverse engineer the initial state:
             current_state = {("Tracked", field): getattr(issue.fields, field, np.nan) for field in tracked_fields}
             current_state.update({
                 "date": pd.Timestamp.utcnow(),
