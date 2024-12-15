@@ -19,21 +19,21 @@ def test_history(jira_time_machine):
 
     history_df = jira_time_machine.history(jql_query, fields_to_track)
 
-    records = history_df[history_df["issue_id"] == "PROJ-0001"]
+    records = history_df[history_df[('Record', 'issue_id')] == "PROJ-0001"]
     assert len(records) == 4, "Should have 5 records for PROJ-0001"
-    assert len(records[records["type"] == "initial"]) == 1, "Should have 1 'initial' record for PROJ-0001"
-    assert len(records[records["type"] == "change"]) == 2, "Should have 2 'change' records for PROJ-0001"
-    assert len(records[records["type"] == "current"]) == 1, "Should have 1 'current' record for PROJ-0001"
+    assert len(records[records[("Record", "type")] == "initial"]) == 1, "Should have 1 'initial' record for PROJ-0001"
+    assert len(records[records[("Record", "type")] == "change"]) == 2, "Should have 2 'change' records for PROJ-0001"
+    assert len(records[records[("Record", "type")] == "current"]) == 1, "Should have 1 'current' record for PROJ-0001"
 
-    proj_0001_current = history_df[(history_df['issue_id'] == 'PROJ-0001') & (history_df['type'] == 'current')].iloc[0]
+    proj_0001_current = history_df[(history_df[('Record', 'issue_id')] == 'PROJ-0001') & (history_df[('Record', 'type')] == 'current')].iloc[0]
     assert proj_0001_current[('Tracked', 'status')] == "Submitted", "PROJ-0001 current status should be 'Submitted'"
     assert proj_0001_current[('Tracked', 'priority')] == "Major", "PROJ-0001 current priority should be 'Major'"
 
-    proj_0001_last_change = history_df[(history_df['issue_id'] == 'PROJ-0001') & (history_df['type'] == 'change')].iloc[-1]
+    proj_0001_last_change = history_df[(history_df[('Record', 'issue_id')] == 'PROJ-0001') & (history_df[('Record', 'type')] == 'change')].iloc[-1]
     assert proj_0001_last_change[('Tracked', 'status')] == "Submitted", "PROJ-0001 current status should be 'Submitted'"
     assert proj_0001_last_change[('Tracked', 'priority')] == "Major", "PROJ-0001 current priority should be 'Major'"
 
-    proj_0001_initial = history_df[(history_df['issue_id'] == 'PROJ-0001') & (history_df['type'] == 'initial')].iloc[-1]
+    proj_0001_initial = history_df[(history_df[('Record', 'issue_id')] == 'PROJ-0001') & (history_df[('Record', 'type')] == 'initial')].iloc[-1]
     assert proj_0001_initial[('Tracked', 'status')] == "New", "PROJ-0001 initial status should be 'New'"
     assert proj_0001_initial[('Tracked', 'priority')] == "Minor", "PROJ-0001 initial priority should be 'Minor'"
 
@@ -44,8 +44,8 @@ def test_snapshot(jira_time_machine):
     fields_to_track = ["status", "assignee", "priority"]
     history_df = jira_time_machine.history(jql_query, fields_to_track)
 
-    date = pd.to_datetime('2024-10-16', utc=True)
-    snapshot = jira_time_machine.get_snapshot(history_df, date)
+    dt = pd.to_datetime('2024-10-16', utc=True)
+    snapshot = jira_time_machine.get_snapshot(history_df, dt)
     assert ('PROJ-0001' in snapshot.index), "PROJ-0001 should be in the snapshot"
     assert ('PROJ-0002' not in snapshot.index), "PROJ-0002 should NOT be in the snapshot (created later)"
 

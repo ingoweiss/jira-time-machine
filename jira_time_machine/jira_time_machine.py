@@ -4,6 +4,7 @@ from tqdm import tqdm
 import numpy as np
 
 class JiraTimeMachine:
+
     def __init__(self, jira_instance):
         """
         Initialize the JiraTimeMachine instance with a jiRA instance.
@@ -23,7 +24,13 @@ class JiraTimeMachine:
         """
         self.tracked_fields = tracked_fields
         issues = self.jira.search_issues(jql_query, expand="changelog", maxResults=False)
-        history_data = []
+        record_dicts = []
+
+        record_field = lambda v: ('Record', v)
+        change_field = lambda v: ('Change', v)
+        tracked_field = lambda v: ('Tracked', v)
+        headers = [record_field(f) for f in ["issue_id", "type", "date", "author"]] + [change_field(f) for f in ["field", "from", "to"]] + [tracked_field(f) for f in tracked_fields]
+        record_template = {k: np.nan for k in headers}
 
         for issue in tqdm(issues, desc="Processing issues"):
             issue_id = issue.key
@@ -31,84 +38,68 @@ class JiraTimeMachine:
             reporter = getattr(issue.fields.reporter, "displayName", "Unknown")
             changelog = issue.changelog.histories
 
-            # Add the initial state with:
-            # 1. Reporter
-            # 2. Created date
-            # 3. Issue ID
-            # 4. Tracked fields with NaN values
-            # Remaining fields will be reverse engineered from the changelog
-            initial_state = {("Tracked", field): np.nan for field in tracked_fields}
-            initial_state.update({
-                "issue_id": issue_id,
-                "type": "initial",
-                "date": created_at,
-                "author": reporter
-            })
-            history_data.append(initial_state)
+            # (1) Add the issue's initial state:
+            # Tracked fields will be initially empty - we will reverse engineer them from the changelog later
+            initial_record = record_template.copy()
+            initial_record[record_field("issue_id")] = issue_id
+            initial_record[record_field("type")] = "initial"
+            initial_record[record_field("date")] = created_at
+            initial_record[record_field("author")] = reporter
 
-            # Add changes from changelog:
+            record_dicts.append(initial_record)
+
+            # (2) Add changes from issue's changelog:
             for change in changelog:
                 change_date = pd.to_datetime(change.created)
                 for item in change.items:
+                    change_record = record_template.copy()
                     if item.field in tracked_fields:
-                        history_data.append({
-                            "issue_id": issue_id,
-                            "type": "change",
-                            "date": change_date,
-                            "field": item.field,
-                            "from": item.fromString,
-                            "to": item.toString,
-                            "author": getattr(change.author, "displayName", "Unknown")
-                        })
 
-            # Add the current state which is only needed to reverse engineer the initial state:
-            current_state = {("Tracked", field): getattr(issue.fields, field, np.nan) for field in tracked_fields}
-            current_state.update({
-                "date": pd.Timestamp.utcnow(),
-                "issue_id": issue_id,
-                "type": "current",
-                "author": "System"
-            })
-            history_data.append(current_state)
+                        change_record[record_field("issue_id")] = issue_id
+                        change_record[record_field("type")] = "change"
+                        change_record[record_field("date")] = change_date
+                        change_record[record_field("author")] = getattr(change.author, "displayName", "Unknown")
+                        change_record[change_field("field")] = item.field
+                        change_record[change_field("from")] = item.fromString
+                        change_record[change_field("to")] = item.toString
 
-        history = pd.DataFrame(history_data)
-        history = history[['issue_id', 'type', 'date', 'author', 'field', 'from', 'to'] + [("Tracked", field) for field in tracked_fields]]
-        history.sort_values(by=["issue_id", "date"], inplace=True)
+                        record_dicts.append(change_record)
 
-        issue_histories = []
+            # (3) Add the issue's current state which is only needed to reverse engineer the initial state:
+            current_record = record_template.copy()
+            current_record[record_field("date")] = pd.Timestamp.utcnow()
+            current_record[record_field("issue_id")] = issue_id
+            current_record[record_field("type")] = "current"
+            current_record[record_field("author")] = "System"
+            for field in tracked_fields:
+                current_record[tracked_field(field)] = getattr(issue.fields, field, np.nan)
 
-        for issue_id in history['issue_id'].unique():
+            record_dicts.append(current_record)
 
-            issue_history = history[history['issue_id'] == issue_id]
+        history = pd.DataFrame(record_dicts)
+        history.columns = pd.MultiIndex.from_tuples(headers)
+        history.sort_values(by=[record_field("issue_id"), record_field("date")], inplace=True)
 
-            issue_history_to = issue_history.copy()
-            issue_history_from = issue_history.copy()
+        # (4) Reverse engineer tracked field states from the changelog:
+        # First, forward fill from the change 'to' values:
+        for field in tracked_fields:
+            history.loc[history[change_field('field')] == field, tracked_field(field)] = history[change_field('to')]
 
-            changes = issue_history_to['type'] == 'change'
-            # Apply the transformation for each matching row
-            for idx in issue_history_to[changes].index:
-                field_name = issue_history_to.at[idx, 'field']  # Look up the field name
-                new_value = issue_history_to.at[idx, 'to']     # Get the value to set
-                issue_history_to.at[idx, ('Tracked', field_name)] = new_value
+        fill_blocker = '[[BLOCKER]]'
+        history.loc[history[record_field('type')] == 'initial', 'Tracked'] = fill_blocker
+        history['Tracked'] = history['Tracked'].fillna(method='ffill')
+        history['Tracked'] = history['Tracked'].replace(fill_blocker, np.nan)
 
-            issue_history_to = issue_history_to.ffill()
+        # Second, backward fill from the change 'from' values:
+        for field in tracked_fields:
+            history.loc[history[change_field('field')] == field, tracked_field(field)] = history[change_field('from')]
+        history['Tracked'] = history['Tracked'].fillna(method='bfill')
 
-            changes = issue_history_from['type'] == 'change'
-            # Apply the transformation for each matching row
-            for idx in issue_history_from[changes].index:
-                field_name = issue_history_from.at[idx, 'field']  # Look up the field name
-                new_value = issue_history_from.at[idx, 'from']     # Get the value to set
-                issue_history_from.at[idx, ('Tracked', field_name)] = new_value
+        # Finally, restore the change 'to' values:
+        for field in tracked_fields:
+            history.loc[history[change_field('field')] == field, tracked_field(field)] = history[change_field('to')]
 
-            issue_history_from = issue_history_from.bfill()
-
-            issue_history_final = issue_history_to.combine_first(issue_history_from)
-            issue_histories.append(issue_history_final)
-
-        final_history = pd.concat(issue_histories)
-        final_history.sort_values(by=["issue_id", "date"], inplace=True)
-
-        return final_history
+        return history
 
     def get_snapshot(self, history, dt):
         """
@@ -121,12 +112,14 @@ class JiraTimeMachine:
         Returns:
             pd.DataFrame: A snapshot of the backlog at the given timestamp.
         """
+        record_field = lambda v: ('Record', v)
+
         snapshot = (
-            history[history['date'] <= dt]
-            .sort_values('date')
-            .groupby('issue_id')
+            history[history[record_field('date')] <= dt]
+            .sort_values(record_field('date'))
+            .groupby(record_field('issue_id'))
             .last()\
-            [[('Tracked', field) for field in self.tracked_fields]]
+            [['Tracked']]
         )
         snapshot.columns = self.tracked_fields
         return snapshot
