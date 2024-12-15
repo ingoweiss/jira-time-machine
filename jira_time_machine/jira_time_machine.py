@@ -77,7 +77,7 @@ class JiraTimeMachine:
             record_dicts.append(current_record)
 
         history = pd.DataFrame(record_dicts)
-        history.columns = pd.MultiIndex.from_tuples(headers)
+        history.columns = pd.MultiIndex.from_tuples(headers, names=["Section", "Field"])
         history.sort_values(by=[record_field("issue_id"), record_field("date")], inplace=True)
 
         # (4) Reverse engineer tracked field states from the changelog:
@@ -121,5 +121,5 @@ class JiraTimeMachine:
             .last()\
             [['Tracked']]
         )
-        snapshot.columns = self.tracked_fields
+        snapshot.columns = snapshot.columns.droplevel("Section")
         return snapshot
