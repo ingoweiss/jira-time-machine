@@ -122,4 +122,5 @@ class JiraTimeMachine:
             [['Tracked']]
         )
         snapshot.columns = snapshot.columns.droplevel("Section")
+        snapshot.index.name = 'issue_id'
         return snapshot
