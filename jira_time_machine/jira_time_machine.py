@@ -23,6 +23,7 @@ class JiraTimeMachine:
             pd.DataFrame: A DataFrame with issue states over time.
         """
         self.tracked_fields = tracked_fields
+        self.tracked_fields_info = [field for field in self.jira.fields() if field['name'] in tracked_fields]
         issues = self.jira.search_issues(jql_query, expand="changelog", maxResults=False)
         record_dicts = []
 
@@ -53,7 +54,7 @@ class JiraTimeMachine:
                 change_date = pd.to_datetime(change.created)
                 for item in change.items:
                     change_record = record_template.copy()
-                    if item.field in tracked_fields:
+                    if self.field_name_by_id(item.field) in tracked_fields:
 
                         change_record[record_field("issue_id")] = issue_id
                         change_record[record_field("type")] = "change"
@@ -72,7 +73,7 @@ class JiraTimeMachine:
             current_record[record_field("type")] = "current"
             current_record[record_field("author")] = "System"
             for field in tracked_fields:
-                current_record[tracked_field(field)] = getattr(issue.fields, field, np.nan)
+                current_record[tracked_field(field)] = getattr(issue.fields, self.field_id_by_name(field), np.nan)
 
             record_dicts.append(current_record)
 
@@ -83,7 +84,8 @@ class JiraTimeMachine:
         # (4) Reverse engineer tracked field states from the changelog:
         # First, forward fill from the change 'to' values:
         for field in tracked_fields:
-            history.loc[history[change_field('field')] == field, tracked_field(field)] = history[change_field('to')]
+            field_id = self.field_id_by_name(field)
+            history.loc[history[change_field('field')] == field_id, tracked_field(field)] = history[change_field('to')]
 
         fill_blocker = '[[BLOCKER]]'
         history.loc[history[record_field('type')] == 'initial', 'Tracked'] = fill_blocker
@@ -92,13 +94,16 @@ class JiraTimeMachine:
 
         # Second, backward fill from the change 'from' values:
         for field in tracked_fields:
-            history.loc[history[change_field('field')] == field, tracked_field(field)] = history[change_field('from')]
+            field_id = self.field_id_by_name(field)
+            history.loc[history[change_field('field')] == field_id, tracked_field(field)] = history[change_field('from')]
         history['Tracked'] = history['Tracked'].fillna(method='bfill')
 
         # Finally, restore the change 'to' values:
         for field in tracked_fields:
-            history.loc[history[change_field('field')] == field, tracked_field(field)] = history[change_field('to')]
+            field_id = self.field_id_by_name(field)
+            history.loc[history[change_field('field')] == field_id, tracked_field(field)] = history[change_field('to')]
 
+        # history = history[history[record_field('type')] != 'current']
         return history
 
     def get_snapshot(self, history, dt):
@@ -124,3 +129,11 @@ class JiraTimeMachine:
         snapshot.columns = snapshot.columns.droplevel("Section")
         snapshot.index.name = 'issue_id'
         return snapshot
+
+    def field_name_by_id(self, field_id):
+        field_info = next((f for f in self.tracked_fields_info if f['id'] == field_id and f['custom'] == False), None)
+        return field_info['name']
+
+    def field_id_by_name(self, field_name):
+        field_info = next((f for f in self.tracked_fields_info if f['name'] == field_name and f['custom'] == False), None)
+        return field_info['id']

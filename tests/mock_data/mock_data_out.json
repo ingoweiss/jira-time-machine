@@ -10,9 +10,10 @@
                 "assignee": {
                     "displayName": "Wynton Kelly"
                 },
-                "status": "New",
-                "priority": "Minor",
-                "type": "created"
+                "status": "Submitted",
+                "priority": "Major",
+                "type": null,
+                "summary": "Bye Bye Blackbird"
             },
             "changelog": {
                 "histories": [
@@ -57,7 +58,8 @@
                 },
                 "status": "New",
                 "priority": "Major",
-                "type": "created"
+                "type": null,
+                "summary": "The Way you Look Tonight"
             },
             "changelog": {
                 "histories": []

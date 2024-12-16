@@ -2,12 +2,18 @@ from unittest.mock import MagicMock
 import json
 
 class MockJira:
-    def __init__(self, mock_data_file):
+    def __init__(self, mock_data_file, mock_fields_file):
         with open(mock_data_file, "r") as f:
             self.mock_data = json.load(f)
+        with open(mock_fields_file, "r") as f:
+            self.mock_fields = json.load(f)
+
 
     def search_issues(self, jql_query, expand=None, maxResults=None):
         return [MockIssue(issue) for issue in self.mock_data["issues"]]
+
+    def fields(self):
+        return self.mock_fields
 
 class MockIssue:
     def __init__(self, issue_data):
