@@ -24,6 +24,7 @@ class JiraTimeMachine:
         """
         self.tracked_fields = tracked_fields
         self.tracked_fields_info = [field for field in self.jira.fields() if field['name'] in tracked_fields]
+        self.tracked_field_ids = [f['id'] for f in self.tracked_fields_info]
         issues = self.jira.search_issues(jql_query, expand="changelog", maxResults=False)
         record_dicts = []
 
@@ -54,7 +55,7 @@ class JiraTimeMachine:
                 change_date = pd.to_datetime(change.created)
                 for item in change.items:
                     change_record = record_template.copy()
-                    if self.field_name_by_id(item.field) in tracked_fields:
+                    if item.field in self.tracked_field_ids:
 
                         change_record[record_field("issue_id")] = issue_id
                         change_record[record_field("type")] = "change"
@@ -103,7 +104,8 @@ class JiraTimeMachine:
             field_id = self.field_id_by_name(field)
             history.loc[history[change_field('field')] == field_id, tracked_field(field)] = history[change_field('to')]
 
-        # history = history[history[record_field('type')] != 'current']
+        # remove the 'current' records. They are redundant since the last 'change' record or the 'initial' record (if there are no 'change' records) already has the current state
+        history = history[history[record_field('type')] != 'current']
         return history
 
     def get_snapshot(self, history, dt):

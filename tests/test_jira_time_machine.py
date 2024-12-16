@@ -20,14 +20,9 @@ def test_history(jira_time_machine):
     history_df = jira_time_machine.history(jql_query, fields_to_track)
 
     records = history_df[history_df[('Record', 'issue_id')] == "PROJ-0001"]
-    assert len(records) == 4
+    assert len(records) == 3
     assert len(records[records[("Record", "type")] == "initial"]) == 1
     assert len(records[records[("Record", "type")] == "change"]) == 2
-    # assert len(records[records[("Record", "type")] == "current"]) == 1
-
-    proj_0001_current = history_df[(history_df[('Record', 'issue_id')] == 'PROJ-0001') & (history_df[('Record', 'type')] == 'current')].iloc[0]
-    assert proj_0001_current[('Tracked', 'Status')] == "Submitted"
-    assert proj_0001_current[('Tracked', 'Priority')] == "Major"
 
     proj_0001_last_change = history_df[(history_df[('Record', 'issue_id')] == 'PROJ-0001') & (history_df[('Record', 'type')] == 'change')].iloc[-1]
     assert proj_0001_last_change[('Tracked', 'Status')] == "Submitted"
