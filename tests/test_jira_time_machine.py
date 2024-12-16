@@ -5,7 +5,7 @@ import pandas as pd
 
 @pytest.fixture
 def mock_jira():
-    return MockJira("tests/mock_data/mock_jira_data.json", "tests/mock_data/mock_fields.json")
+    return MockJira("tests/mock_data/mock_jira_issues.json", "tests/mock_data/mock_jira_fields.json")
 
 @pytest.fixture
 def jira_time_machine(mock_jira):

@@ -1,0 +1,69 @@
+{
+    "issues": [
+        {
+            "key": "PROJ-0001",
+            "fields": {
+                "created": "2024-10-01T15:00:00.000+0000",
+                "reporter": {
+                    "displayName": "Tommy Flanagan"
+                },
+                "assignee": {
+                    "displayName": "Wynton Kelly"
+                },
+                "status": "Submitted",
+                "priority": "Major",
+                "type": null,
+                "summary": "Bye Bye Blackbird"
+            },
+            "changelog": {
+                "histories": [
+                    {
+                        "created": "2024-11-02T15:00:00.000+0000",
+                        "author": {
+                            "displayName": "Wynton Kelly"
+                        },
+                        "items": [
+                            {
+                                "field": "status",
+                                "fromString": "New",
+                                "toString": "Submitted"
+                            }
+                        ]
+                    },
+                    {
+                        "created": "2024-10-15T15:00:00.000+0000",
+                        "author": {
+                            "displayName": "Tommy Flanagan"
+                        },
+                        "items": [
+                            {
+                                "field": "priority",
+                                "fromString": "Minor",
+                                "toString": "Major"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "key": "PROJ-0002",
+            "fields": {
+                "created": "2024-11-10T15:00:00.000+0000",
+                "reporter": {
+                    "displayName": "Red Garland"
+                },
+                "assignee": {
+                    "displayName": "Red Garland"
+                },
+                "status": "New",
+                "priority": "Major",
+                "type": null,
+                "summary": "The Way you Look Tonight"
+            },
+            "changelog": {
+                "histories": []
+            }
+        }
+    ]
+}

@@ -3,7 +3,10 @@ import json
 import argparse
 from collections import defaultdict
 
-def convert_csv_to_mock_json(input_csv, output_json):
+def convert_csv_to_mock_json():
+
+    input_csv = "mock_data.csv"
+    output_json = "mock_jira_issues.json"
     # Read the CSV file
     df = pd.read_csv(input_csv)
 
@@ -65,9 +68,4 @@ def convert_csv_to_mock_json(input_csv, output_json):
         json.dump(mock_data, f, indent=4)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Convert CSV mock data to JSON for mocking Jira.")
-    parser.add_argument("input_csv", help="Path to the input CSV file.")
-    parser.add_argument("output_json", help="Path to the output JSON file.")
-    args = parser.parse_args()
-
-    convert_csv_to_mock_json(args.input_csv, args.output_json)
+    convert_csv_to_mock_json()
