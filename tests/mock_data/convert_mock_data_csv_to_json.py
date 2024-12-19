@@ -3,6 +3,7 @@ import json
 import argparse
 from collections import defaultdict
 
+
 def convert_csv_to_mock_json():
 
     input_csv = "mock_data.csv"
@@ -27,27 +28,25 @@ def convert_csv_to_mock_json():
                 "status": None,
                 "priority": None,
                 "type": None,
-                "summary": None
+                "summary": None,
             },
-            "changelog": {
-                "histories": []
-            }
+            "changelog": {"histories": []},
         }
 
         for _, row in group.iterrows():
             # Handle 'initial' and 'current' fields
-            if row['type'] == 'initial':
+            if row["type"] == "initial":
                 issue_data["fields"]["created"] = row["date"]
                 issue_data["fields"]["reporter"]["displayName"] = row["author"]
 
-            elif row['type'] == 'current':
+            elif row["type"] == "current":
                 issue_data["fields"]["status"] = row["status"]
                 issue_data["fields"]["priority"] = row["priority"]
                 issue_data["fields"]["assignee"]["displayName"] = row["assignee"]
                 issue_data["fields"]["summary"] = row["summary"]
 
             # Handle changes
-            elif row['type'] == 'change':
+            elif row["type"] == "change":
                 change_item = {
                     "created": row["date"],
                     "author": {"displayName": row["author"]},
@@ -55,9 +54,9 @@ def convert_csv_to_mock_json():
                         {
                             "field": row["field"],
                             "fromString": row["from"],
-                            "toString": row["to"]
+                            "toString": row["to"],
                         }
-                    ]
+                    ],
                 }
                 issue_data["changelog"]["histories"].append(change_item)
 
@@ -66,6 +65,7 @@ def convert_csv_to_mock_json():
     # Write the JSON output
     with open(output_json, "w") as f:
         json.dump(mock_data, f, indent=4)
+
 
 if __name__ == "__main__":
     convert_csv_to_mock_json()
