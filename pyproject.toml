@@ -29,7 +29,6 @@ classifiers = [
     "Topic :: Software Development",
     "Intended Audience :: Developers",
     "Intended Audience :: Information Technology",
-    "Intended Audience :: Project Managers",
 ]
 
 [project.urls]
@@ -40,7 +39,7 @@ classifiers = [
 "Documentation" = "https://github.com/ingoweiss/jira-time-machine"
 
 [tool.hatch.version]
-path = "jira-time-machine/__init__.py"
+path = "jira_time_machine/__init__.py"
 
 [tool.hatch.metadata.hooks.requirements_txt]
 files = ["requirements.txt"]
