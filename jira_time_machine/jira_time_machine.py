@@ -105,7 +105,7 @@ class JiraTimeMachine:
         history.loc[history[self.record_field("type")] == "initial", "Tracked"] = (
             fill_blocker
         )
-        history["Tracked"] = history["Tracked"].fillna(method="ffill")
+        history["Tracked"] = history["Tracked"].ffill()
         history["Tracked"] = history["Tracked"].replace(fill_blocker, np.nan)
 
         # Second, backward fill from the change 'from' values:
@@ -114,7 +114,7 @@ class JiraTimeMachine:
             history.loc[
                 history[self.change_field("field")] == field_id, self.tracked_field(field)
             ] = history[self.change_field("from")]
-        history["Tracked"] = history["Tracked"].fillna(method="bfill")
+        history["Tracked"] = history["Tracked"].bfill()
 
         # Finally, restore the change 'to' values:
         for field in tracked_fields:
