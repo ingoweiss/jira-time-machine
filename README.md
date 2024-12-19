@@ -1,6 +1,6 @@
 # Jira Time Machine
 
-Jira Time Machine gives you the state of a set of Jira issues at any point in time.
+Jira Time Machine gives you the state of your Jira project at any time in its history.
 
 ## Table of Contents
 
