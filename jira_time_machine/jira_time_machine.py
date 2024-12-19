@@ -1,4 +1,3 @@
-from jira import JIRA
 import pandas as pd
 from tqdm import tqdm
 import numpy as np
@@ -32,14 +31,10 @@ class JiraTimeMachine:
             jql_query, expand="changelog", maxResults=False
         )
         record_dicts = []
-
-        record_field = lambda v: ("Record", v)
-        change_field = lambda v: ("Change", v)
-        tracked_field = lambda v: ("Tracked", v)
         headers = (
-            [record_field(f) for f in ["issue_id", "type", "date", "author"]]
-            + [change_field(f) for f in ["field", "from", "to"]]
-            + [tracked_field(f) for f in tracked_fields]
+            [self.record_field(f) for f in ["issue_id", "type", "date", "author"]]
+            + [self.change_field(f) for f in ["field", "from", "to"]]
+            + [self.tracked_field(f) for f in tracked_fields]
         )
         record_template = {k: np.nan for k in headers}
 
@@ -52,10 +47,10 @@ class JiraTimeMachine:
             # (1) Add the issue's initial state:
             # Tracked fields will be initially empty - we will reverse engineer them from the changelog later
             initial_record = record_template.copy()
-            initial_record[record_field("issue_id")] = issue_id
-            initial_record[record_field("type")] = "initial"
-            initial_record[record_field("date")] = created_at
-            initial_record[record_field("author")] = reporter
+            initial_record[self.record_field("issue_id")] = issue_id
+            initial_record[self.record_field("type")] = "initial"
+            initial_record[self.record_field("date")] = created_at
+            initial_record[self.record_field("author")] = reporter
 
             record_dicts.append(initial_record)
 
@@ -66,26 +61,26 @@ class JiraTimeMachine:
                     change_record = record_template.copy()
                     if item.field in self.tracked_field_ids:
 
-                        change_record[record_field("issue_id")] = issue_id
-                        change_record[record_field("type")] = "change"
-                        change_record[record_field("date")] = change_date
-                        change_record[record_field("author")] = getattr(
+                        change_record[self.record_field("issue_id")] = issue_id
+                        change_record[self.record_field("type")] = "change"
+                        change_record[self.record_field("date")] = change_date
+                        change_record[self.record_field("author")] = getattr(
                             change.author, "displayName", "Unknown"
                         )
-                        change_record[change_field("field")] = item.field
-                        change_record[change_field("from")] = item.fromString
-                        change_record[change_field("to")] = item.toString
+                        change_record[self.change_field("field")] = item.field
+                        change_record[self.change_field("from")] = item.fromString
+                        change_record[self.change_field("to")] = item.toString
 
                         record_dicts.append(change_record)
 
             # (3) Add the issue's current state which is only needed to reverse engineer the initial state:
             current_record = record_template.copy()
-            current_record[record_field("date")] = pd.Timestamp.utcnow()
-            current_record[record_field("issue_id")] = issue_id
-            current_record[record_field("type")] = "current"
-            current_record[record_field("author")] = "System"
+            current_record[self.record_field("date")] = pd.Timestamp.utcnow()
+            current_record[self.record_field("issue_id")] = issue_id
+            current_record[self.record_field("type")] = "current"
+            current_record[self.record_field("author")] = "System"
             for field in tracked_fields:
-                current_record[tracked_field(field)] = getattr(
+                current_record[self.tracked_field(field)] = getattr(
                     issue.fields, self.field_id_by_name(field), np.nan
                 )
 
@@ -94,7 +89,7 @@ class JiraTimeMachine:
         history = pd.DataFrame(record_dicts)
         history.columns = pd.MultiIndex.from_tuples(headers, names=["Section", "Field"])
         history.sort_values(
-            by=[record_field("issue_id"), record_field("date")], inplace=True
+            by=[self.record_field("issue_id"), self.record_field("date")], inplace=True
         )
 
         # (4) Reverse engineer tracked field states from the changelog:
@@ -102,33 +97,36 @@ class JiraTimeMachine:
         for field in tracked_fields:
             field_id = self.field_id_by_name(field)
             history.loc[
-                history[change_field("field")] == field_id, tracked_field(field)
-            ] = history[change_field("to")]
+                history[self.change_field("field")] == field_id,
+                self.tracked_field(field),
+            ] = history[self.change_field("to")]
 
         fill_blocker = "[[BLOCKER]]"
-        history.loc[history[record_field("type")] == "initial", "Tracked"] = (
+        history.loc[history[self.record_field("type")] == "initial", "Tracked"] = (
             fill_blocker
         )
-        history["Tracked"] = history["Tracked"].fillna(method="ffill")
+        history["Tracked"] = history["Tracked"].ffill()
         history["Tracked"] = history["Tracked"].replace(fill_blocker, np.nan)
 
         # Second, backward fill from the change 'from' values:
         for field in tracked_fields:
             field_id = self.field_id_by_name(field)
             history.loc[
-                history[change_field("field")] == field_id, tracked_field(field)
-            ] = history[change_field("from")]
-        history["Tracked"] = history["Tracked"].fillna(method="bfill")
+                history[self.change_field("field")] == field_id,
+                self.tracked_field(field),
+            ] = history[self.change_field("from")]
+        history["Tracked"] = history["Tracked"].bfill()
 
         # Finally, restore the change 'to' values:
         for field in tracked_fields:
             field_id = self.field_id_by_name(field)
             history.loc[
-                history[change_field("field")] == field_id, tracked_field(field)
-            ] = history[change_field("to")]
+                history[self.change_field("field")] == field_id,
+                self.tracked_field(field),
+            ] = history[self.change_field("to")]
 
         # remove the 'current' records. They are redundant since the last 'change' record or the 'initial' record (if there are no 'change' records) already has the current state
-        history = history[history[record_field("type")] != "current"]
+        history = history[history[self.record_field("type")] != "current"]
         return history
 
     def snapshot(self, history, dt):
@@ -142,12 +140,10 @@ class JiraTimeMachine:
         Returns:
             pd.DataFrame: A snapshot of the backlog at the given timestamp.
         """
-        record_field = lambda v: ("Record", v)
-
         snapshot = (
-            history[history[record_field("date")] <= dt]
-            .sort_values(record_field("date"))
-            .groupby(record_field("issue_id"))
+            history[history[self.record_field("date")] <= dt]
+            .sort_values(self.record_field("date"))
+            .groupby(self.record_field("issue_id"))
             .last()[["Tracked"]]
         )
         snapshot.columns = snapshot.columns.droplevel("Section")
@@ -159,7 +155,7 @@ class JiraTimeMachine:
             (
                 f
                 for f in self.tracked_fields_info
-                if f["id"] == field_id and f["custom"] == False
+                if f["id"] == field_id and not f["custom"]
             ),
             None,
         )
@@ -170,8 +166,17 @@ class JiraTimeMachine:
             (
                 f
                 for f in self.tracked_fields_info
-                if f["name"] == field_name and f["custom"] == False
+                if f["name"] == field_name and not f["custom"]
             ),
             None,
         )
         return field_info["id"]
+
+    def record_field(self, field_name):
+        return ("Record", field_name)
+
+    def change_field(self, field_name):
+        return ("Change", field_name)
+
+    def tracked_field(self, field_name):
+        return ("Tracked", field_name)
