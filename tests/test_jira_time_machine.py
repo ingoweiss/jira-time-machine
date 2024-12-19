@@ -66,7 +66,7 @@ def test_snapshot_includes_correct_issues(jira_time_machine):
     fields_to_track = ["Status", "Assignee", "Priority"]
     history_df = jira_time_machine.history(jql_query, fields_to_track)
     dt = pd.to_datetime('2024-10-16', utc=True)
-    snapshot = jira_time_machine.get_snapshot(history_df, dt)
+    snapshot = jira_time_machine.snapshot(history_df, dt)
 
     assert ('PROJ-0001' in snapshot.index)
     assert ('PROJ-0002' not in snapshot.index) # was created after dt
@@ -77,7 +77,7 @@ def test_snapshot_has_correct_issue_states(jira_time_machine):
     fields_to_track = ["Status", "Assignee", "Priority"]
     history_df = jira_time_machine.history(jql_query, fields_to_track)
     dt = pd.to_datetime('2024-10-16', utc=True)
-    snapshot = jira_time_machine.get_snapshot(history_df, dt)
+    snapshot = jira_time_machine.snapshot(history_df, dt)
 
     assert snapshot.at['PROJ-0001', 'Status'] == 'New'
     assert snapshot.at['PROJ-0001', 'Priority'] == 'Major'

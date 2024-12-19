@@ -108,7 +108,7 @@ class JiraTimeMachine:
         history = history[history[record_field('type')] != 'current']
         return history
 
-    def get_snapshot(self, history, dt):
+    def snapshot(self, history, dt):
         """
         Get the snapshot of the backlog at a specific timestamp.
 
