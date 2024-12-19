@@ -97,7 +97,8 @@ class JiraTimeMachine:
         for field in tracked_fields:
             field_id = self.field_id_by_name(field)
             history.loc[
-                history[self.change_field("field")] == field_id, self.tracked_field(field)
+                history[self.change_field("field")] == field_id,
+                self.tracked_field(field),
             ] = history[self.change_field("to")]
 
         fill_blocker = "[[BLOCKER]]"
@@ -111,7 +112,8 @@ class JiraTimeMachine:
         for field in tracked_fields:
             field_id = self.field_id_by_name(field)
             history.loc[
-                history[self.change_field("field")] == field_id, self.tracked_field(field)
+                history[self.change_field("field")] == field_id,
+                self.tracked_field(field),
             ] = history[self.change_field("from")]
         history["Tracked"] = history["Tracked"].bfill()
 
@@ -119,7 +121,8 @@ class JiraTimeMachine:
         for field in tracked_fields:
             field_id = self.field_id_by_name(field)
             history.loc[
-                history[self.change_field("field")] == field_id, self.tracked_field(field)
+                history[self.change_field("field")] == field_id,
+                self.tracked_field(field),
             ] = history[self.change_field("to")]
 
         # remove the 'current' records. They are redundant since the last 'change' record or the 'initial' record (if there are no 'change' records) already has the current state
