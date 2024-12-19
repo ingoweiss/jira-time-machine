@@ -138,12 +138,10 @@ class JiraTimeMachine:
         Returns:
             pd.DataFrame: A snapshot of the backlog at the given timestamp.
         """
-        record_field = lambda v: ("Record", v)
-
         snapshot = (
-            history[history[record_field("date")] <= dt]
-            .sort_values(record_field("date"))
-            .groupby(record_field("issue_id"))
+            history[history[self.record_field("date")] <= dt]
+            .sort_values(self.record_field("date"))
+            .groupby(self.record_field("issue_id"))
             .last()[["Tracked"]]
         )
         snapshot.columns = snapshot.columns.droplevel("Section")
