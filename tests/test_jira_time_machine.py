@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import patch
 from .mocks import MockJira
 from jira_time_machine import JiraTimeMachine
 import pandas as pd
@@ -13,8 +14,8 @@ def mock_jira():
 
 @pytest.fixture
 def jira_time_machine(mock_jira):
-    # Initialize JiraTimeMachine with the mock Jira instance
-    return JiraTimeMachine(mock_jira)
+    with patch('jira.JIRA', return_value=mock_jira):
+        return JiraTimeMachine(mock_jira)
 
 
 def test_history_has_issue_initial_state_and_changes(jira_time_machine):
