@@ -1,0 +1,45 @@
+[build-system]
+requires = ["hatchling", "hatch-requirements-txt"]
+build-backend = "hatchling.build"
+
+[project]
+name = "jira-time-machine"
+dynamic = [
+  "version",
+  "dependencies",
+]
+authors = [
+  { name="Ingo Weiss", email="ingo@ingoweiss.com" },
+]
+description = "Jira Time Machine gives you the state of your Jira project at any time in its history"
+license = { file = "LICENSE" }
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Development Status :: 3 - Alpha",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/ingoweiss/jira-time-machine"
+"Bug Tracker" = "https://github.com/ingoweiss/jira-time-machine/issues"
+"Repository" = "https://github.com/ingoweiss/jira-time-machine.git"
+"Changelog" = "https://github.com/ingoweiss/jira-time-machine/blob/master/CHANGELOG.md"
+"Documentation" = "https://github.com/ingoweiss/jira-time-machine"
+
+[tool.hatch.version]
+path = "jira_time_machine/__init__.py"
+
+[tool.hatch.metadata.hooks.requirements_txt]
+files = ["requirements.txt"]
