@@ -1,7 +1,5 @@
 import pandas as pd
 import json
-import argparse
-from collections import defaultdict
 
 
 def convert_csv_to_mock_json():

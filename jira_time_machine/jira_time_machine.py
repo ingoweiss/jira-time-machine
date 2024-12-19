@@ -153,7 +153,7 @@ class JiraTimeMachine:
             (
                 f
                 for f in self.tracked_fields_info
-                if f["id"] == field_id and f["custom"] == False
+                if f["id"] == field_id and not f["custom"]
             ),
             None,
         )
@@ -164,7 +164,7 @@ class JiraTimeMachine:
             (
                 f
                 for f in self.tracked_fields_info
-                if f["name"] == field_name and f["custom"] == False
+                if f["name"] == field_name and not f["custom"]
             ),
             None,
         )
