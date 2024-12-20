@@ -80,9 +80,12 @@ class JiraTimeMachine:
             current_record[self.record_field("type")] = "current"
             current_record[self.record_field("author")] = "System"
             for field in tracked_fields:
-                current_record[self.tracked_field(field)] = getattr(
-                    issue.fields, self.field_id_by_name(field), np.nan
+                field_id = self.field_id_by_name(field)
+                field_value = getattr(
+                    issue.fields, field_id, np.nan
                 )
+                pythonized_field_value = self.pythonize_field_value(field_id, field_value)
+                current_record[self.tracked_field(field)] = pythonized_field_value
 
             record_dicts.append(current_record)
 
@@ -171,6 +174,29 @@ class JiraTimeMachine:
             None,
         )
         return field_info["id"]
+
+    def pythonize_field_value(self, field_id, field_value):
+        field_info = self.field_info_by_id(field_id)
+        field_schema = field_info['schema']
+        if field_schema['type'] == 'user':
+            return field_value.displayName
+        else:
+            return field_value
+
+    def field_info_by_id(self, field_id):
+        field_info = next(
+            (
+                f
+                for f in self.tracked_fields_info
+                if f["id"] == field_id and not f["custom"]
+            ),
+            None,
+        )
+        return field_info
+
+    def field_schema_by_id(self, field_id):
+        field_info = self.field_info_by_id(field_id)
+        return field_info['schema']
 
     def record_field(self, field_name):
         return ("Record", field_name)
