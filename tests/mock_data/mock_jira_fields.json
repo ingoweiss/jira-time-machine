@@ -66,6 +66,15 @@
         }
     },
     {
+        "id": "reporter",
+        "name": "Reporter",
+        "custom": false,
+        "schema": {
+            "type": "user",
+            "system": "reporter"
+        }
+    },
+    {
         "id": "summary",
         "name": "Summary",
         "custom": false,
