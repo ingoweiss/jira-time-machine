@@ -81,9 +81,18 @@ def test_history_has_correct_current_states(jira_time_machine):
     assert proj_0002_last_record[("Tracked", "Status")] == "New"
     assert proj_0002_last_record[("Tracked", "Priority")] == "Major"
 
+def test_history_handles_user_type_fiels_correctly(jira_time_machine):
+    jql_query = "project = TEST"
+    fields_to_track = ["Status", "Assignee", "Priority"]
+    history_df = jira_time_machine.history(jql_query, fields_to_track)
+
+    proj_0001_last_record = history_df[
+        history_df[("Record", "issue_id")] == "PROJ-0001"
+    ].iloc[-1]
+
+    assert proj_0001_last_record[("Tracked", "Assignee")] == "Wynton Kelly"
 
 def test_snapshot_includes_correct_issues(jira_time_machine):
-    # Test backlog snapshots
     jql_query = "project = TEST"
     fields_to_track = ["Status", "Assignee", "Priority"]
     history_df = jira_time_machine.history(jql_query, fields_to_track)
@@ -95,7 +104,6 @@ def test_snapshot_includes_correct_issues(jira_time_machine):
 
 
 def test_snapshot_has_correct_issue_states(jira_time_machine):
-    # Test backlog snapshots
     jql_query = "project = TEST"
     fields_to_track = ["Status", "Assignee", "Priority"]
     history_df = jira_time_machine.history(jql_query, fields_to_track)
