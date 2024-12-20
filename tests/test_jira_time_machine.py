@@ -81,6 +81,7 @@ def test_history_has_correct_current_states(jira_time_machine):
     assert proj_0002_last_record[("Tracked", "Status")] == "New"
     assert proj_0002_last_record[("Tracked", "Priority")] == "Major"
 
+
 def test_history_handles_user_type_fiels_correctly(jira_time_machine):
     jql_query = "project = TEST"
     fields_to_track = ["Status", "Assignee", "Priority"]
@@ -91,6 +92,7 @@ def test_history_handles_user_type_fiels_correctly(jira_time_machine):
     ].iloc[-1]
 
     assert proj_0001_last_record[("Tracked", "Assignee")] == "Wynton Kelly"
+
 
 def test_snapshot_includes_correct_issues(jira_time_machine):
     jql_query = "project = TEST"
