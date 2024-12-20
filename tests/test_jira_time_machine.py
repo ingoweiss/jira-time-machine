@@ -26,12 +26,12 @@ def test_history_has_issue_initial_state_and_changes(jira_time_machine):
     proj_0002_records = history_df[history_df[("Record", "issue_id")] == "PROJ-0002"]
 
     # PROJ-0001 has 3 records: 1 initial and 2 changes
-    assert len(proj_0001_records) == 3
+    assert len(proj_0001_records) == 4
     assert (
         len(proj_0001_records[proj_0001_records[("Record", "type")] == "initial"]) == 1
     )
     assert (
-        len(proj_0001_records[proj_0001_records[("Record", "type")] == "change"]) == 2
+        len(proj_0001_records[proj_0001_records[("Record", "type")] == "change"]) == 3
     )
 
     # PROJ-0002 has 1 record: 1 initial and no changes
@@ -87,11 +87,16 @@ def test_history_handles_user_type_fiels_correctly(jira_time_machine):
     fields_to_track = ["Status", "Assignee", "Priority"]
     history_df = jira_time_machine.history(jql_query, fields_to_track)
 
+    proj_0001_initial_record = history_df[
+        (history_df[("Record", "issue_id")] == "PROJ-0001")
+        & (history_df[("Record", "type")] == "initial")
+    ].iloc[-1]
+    assert proj_0001_initial_record[("Tracked", "Assignee")] == "Wynton Kelly"
+
     proj_0001_last_record = history_df[
         history_df[("Record", "issue_id")] == "PROJ-0001"
     ].iloc[-1]
-
-    assert proj_0001_last_record[("Tracked", "Assignee")] == "Wynton Kelly"
+    assert proj_0001_last_record[("Tracked", "Assignee")] == "Tommy Flanagan"
 
 
 def test_snapshot_includes_correct_issues(jira_time_machine):

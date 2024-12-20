@@ -1,7 +1,8 @@
 issue_id,type,author,date,field,from,to,summary,status,priority,assignee
 PROJ-0002,current,,2024-11-15T15:00:00.000+0000,,,,The Way you Look Tonight,New,Major,Red Garland
 PROJ-0002,initial,Red Garland,2024-11-10T15:00:00.000+0000,,,,The Way you Look Tonight,New,Major,Red Garland
-PROJ-0001,current,,2024-11-15T15:00:00.000+0000,,,,Bye Bye Blackbird,Submitted,Major,Wynton Kelly
-PROJ-0001,change,Wynton Kelly,2024-11-02T15:00:00.000+0000,status,New,Submitted,,,,
-PROJ-0001,change,Tommy Flanagan,2024-10-15T15:00:00.000+0000,priority,Minor,Major,,,,
+PROJ-0001,current,,2024-11-15T15:00:00.000+0000,,,,Bye Bye Blackbird,Submitted,Major,Tommy Flanagan
+PROJ-0001,change,Wynton Kelly,2024-11-02T15:00:00.000+0000,status,New,Submitted,,Submitted,Major,Tommy Flanagan
+PROJ-0001,change,Tommy Flanagan,2024-10-18T15:00:00.000+0000,assignee,Wynton Kelly,Tommy Flanagan,,New,Major,Tommy Flanagan
+PROJ-0001,change,Tommy Flanagan,2024-10-15T15:00:00.000+0000,priority,Minor,Major,,New,Major,Wynton Kelly
 PROJ-0001,initial,Tommy Flanagan,2024-10-01T15:00:00.000+0000,,,,Bye Bye Blackbird,New,Minor,Wynton Kelly
