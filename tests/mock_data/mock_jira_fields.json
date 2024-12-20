@@ -1,27 +1,77 @@
 [
     {
-        "id": "versions",
-        "name": "Affects Version/s",
-        "custom": false
+        "id": "fixVersions",
+        "name": "Fix versions",
+        "custom": false,
+        "schema": {
+            "type": "array",
+            "items": "version",
+            "system": "fixVersions"
+        }
     },
     {
-        "id": "summary",
-        "name": "Summary",
-        "custom": false
+        "id": "resolution",
+        "name": "Resolution",
+        "custom": false,
+        "schema": {
+            "type": "resolution",
+            "system": "resolution"
+        }
     },
     {
         "id": "priority",
         "name": "Priority",
-        "custom": false
+        "custom": false,
+        "schema": {
+            "type": "priority",
+            "system": "priority"
+        }
     },
     {
-        "id": "status",
-        "name": "Status",
-        "custom": false
+        "id": "labels",
+        "name": "Labels",
+        "custom": false,
+        "schema": {
+            "type": "array",
+            "items": "string",
+            "system": "labels"
+        }
+    },
+    {
+        "id": "versions",
+        "name": "Affects versions",
+        "custom": false,
+        "schema": {
+            "type": "array",
+            "items": "version",
+            "system": "versions"
+        }
     },
     {
         "id": "assignee",
         "name": "Assignee",
-        "custom": false
+        "custom": false,
+        "schema": {
+            "type": "user",
+            "system": "assignee"
+        }
+    },
+    {
+        "id": "status",
+        "name": "Status",
+        "custom": false,
+        "schema": {
+            "type": "status",
+            "system": "status"
+        }
+    },
+    {
+        "id": "summary",
+        "name": "Summary",
+        "custom": false,
+        "schema": {
+            "type": "string",
+            "system": "summary"
+        }
     }
 ]
