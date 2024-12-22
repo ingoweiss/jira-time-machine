@@ -154,25 +154,11 @@ class JiraTimeMachine:
         return snapshot
 
     def field_name_by_id(self, field_id):
-        field_info = next(
-            (
-                f
-                for f in self.tracked_fields_info
-                if f["id"] == field_id and not f["custom"]
-            ),
-            None,
-        )
+        field_info = self.field_info_by_id(field_id)
         return field_info["name"]
 
     def field_id_by_name(self, field_name):
-        field_info = next(
-            (
-                f
-                for f in self.tracked_fields_info
-                if f["name"] == field_name and not f["custom"]
-            ),
-            None,
-        )
+        field_info = self.field_info_by_name(field_name)
         return field_info["id"]
 
     def pythonize_field_value(self, field_id, field_value):
@@ -189,6 +175,17 @@ class JiraTimeMachine:
                 f
                 for f in self.tracked_fields_info
                 if f["id"] == field_id and not f["custom"]
+            ),
+            None,
+        )
+        return field_info
+
+    def field_info_by_name(self, field_name):
+        field_info = next(
+            (
+                f
+                for f in self.tracked_fields_info
+                if f["name"] == field_name and not f["custom"]
             ),
             None,
         )
