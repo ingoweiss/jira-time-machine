@@ -104,6 +104,8 @@ class JiraTimeMachine:
                 self.tracked_field(field),
             ] = history[self.change_field("to")]
 
+        # Temporariliy replace initial 'NaN' values so that backfilled values do not
+        # spill over into the next issue
         fill_blocker = "[[BLOCKER]]"
         history.loc[history[self.record_field("type")] == "initial", "Tracked"] = (
             fill_blocker
