@@ -55,6 +55,7 @@ def test_history_has_correct_initial_states(jira_time_machine):
     ].iloc[0]
     assert proj_0001_initial_record[("Tracked", "Status")] == "New"
     assert proj_0001_initial_record[("Tracked", "Priority")] == "Minor"
+    assert proj_0001_initial_record[("Record", "author")] == "Tommy Flanagan"
 
     proj_0002_initial_record = history_df[
         (history_df[("Record", "issue_id")] == "PROJ-0002")
@@ -62,6 +63,7 @@ def test_history_has_correct_initial_states(jira_time_machine):
     ].iloc[0]
     assert proj_0002_initial_record[("Tracked", "Status")] == "New"
     assert proj_0002_initial_record[("Tracked", "Priority")] == "Major"
+    assert proj_0002_initial_record[("Record", "author")] == "Red Garland"
 
 
 def test_history_has_correct_current_states(jira_time_machine):
