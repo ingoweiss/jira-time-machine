@@ -31,6 +31,7 @@ class MockIssue:
         self.fields.priority = issue_data["fields"]["priority"]
         self.fields.type = issue_data["fields"]["type"]
         self.fields.summary = issue_data["fields"]["summary"]
+        self.fields.labels = issue_data["fields"]["labels"]
         self.changelog = MockChangelog(issue_data.get("changelog", {}))
 
 
