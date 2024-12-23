@@ -27,7 +27,7 @@ class JiraTimeMachine:
             field for field in self.jira.fields() if field["name"] in tracked_fields
         ]
         self.tracked_field_ids = [f["id"] for f in self.tracked_fields_info]
-        issues = self.jira.search_issues(
+        self.issues = self.jira.search_issues(
             jql_query, expand="changelog", maxResults=False
         )
         record_dicts = []
@@ -38,7 +38,7 @@ class JiraTimeMachine:
         )
         record_template = {k: np.nan for k in headers}
 
-        for issue in tqdm(issues, desc="Processing issues"):
+        for issue in tqdm(self.issues, desc="Processing issues"):
             issue_id = issue.key
             created_at = pd.to_datetime(issue.fields.created)
             reporter = getattr(issue.fields.reporter, "displayName", "Unknown")
