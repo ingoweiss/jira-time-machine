@@ -68,8 +68,14 @@ class JiraTimeMachine:
                             change.author, "displayName", "Unknown"
                         )
                         change_record[self.change_field("field")] = item.field
-                        change_record[self.change_field("from")] = self.pythonize_field_value_string(item.field, item.fromString)
-                        change_record[self.change_field("to")] = self.pythonize_field_value_string(item.field, item.toString)
+                        change_record[self.change_field("from")] = (
+                            self.pythonize_field_value_string(
+                                item.field, item.fromString
+                            )
+                        )
+                        change_record[self.change_field("to")] = (
+                            self.pythonize_field_value_string(item.field, item.toString)
+                        )
 
                         record_dicts.append(change_record)
 
