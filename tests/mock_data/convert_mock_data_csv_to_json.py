@@ -1,13 +1,21 @@
 import pandas as pd
 import json
 
+def convert_to_empty_string(value):
+    if pd.isna(value):
+        return ''
+    return value
 
 def convert_csv_to_mock_json():
 
     input_csv = "mock_data.csv"
     output_json = "mock_jira_issues.json"
     # Read the CSV file
-    df = pd.read_csv(input_csv)
+    df = pd.read_csv(input_csv, na_filter=False, converters={
+        'from': convert_to_empty_string,
+        'to': convert_to_empty_string,
+        'labels': convert_to_empty_string
+    })
 
     # Dictionary to hold the mock data
     mock_data = {"issues": []}
@@ -42,6 +50,7 @@ def convert_csv_to_mock_json():
                 issue_data["fields"]["priority"] = row["priority"]
                 issue_data["fields"]["assignee"]["displayName"] = row["assignee"]
                 issue_data["fields"]["summary"] = row["summary"]
+                issue_data["fields"]["labels"] = row["labels"].split()
 
             # Handle changes
             elif row["type"] == "change":
