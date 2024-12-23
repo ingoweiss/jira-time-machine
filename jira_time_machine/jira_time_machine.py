@@ -174,6 +174,11 @@ class JiraTimeMachine:
         field_schema = field_info["schema"]
         if field_schema["type"] == "user":
             return field_value.displayName
+        elif field_schema["type"] == "array":
+            if field_schema["items"] == "version":
+                return [v["name"] for v in field_value]
+            else:
+                return field_value
         else:
             return field_value
 
@@ -181,7 +186,7 @@ class JiraTimeMachine:
         field_info = self.field_info_by_id(field_id)
         field_schema = field_info["schema"]
         if field_schema["type"] == "array":
-            if field_schema["items"] == "string":
+            if field_schema["items"] in ["string", "version"]:
                 return field_value.split()
         else:
             return field_value

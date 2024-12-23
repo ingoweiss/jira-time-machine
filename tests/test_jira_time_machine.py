@@ -89,7 +89,7 @@ def test_history_has_correct_current_states(jira_time_machine):
 
 def test_history_handles_user_type_fiels_correctly(jira_time_machine):
     jql_query = "project = TEST"
-    fields_to_track = ["Status", "Assignee", "Priority", "Labels"]
+    fields_to_track = ["Assignee"]
     history_df = jira_time_machine.history(jql_query, fields_to_track)
 
     proj_0001_initial_record = history_df[
