@@ -69,12 +69,12 @@ class JiraTimeMachine:
                         )
                         change_record[self.change_field("field")] = item.field
                         change_record[self.change_field("from")] = (
-                            self.pythonize_field_value_string(
+                            self.normalize_field_value_string(
                                 item.field, item.fromString
                             )
                         )
                         change_record[self.change_field("to")] = (
-                            self.pythonize_field_value_string(item.field, item.toString)
+                            self.normalize_field_value_string(item.field, item.toString)
                         )
 
                         record_dicts.append(change_record)
@@ -88,10 +88,10 @@ class JiraTimeMachine:
             for field in tracked_fields:
                 field_id = self.field_id_by_name(field)
                 field_value = getattr(issue.fields, field_id, np.nan)
-                pythonized_field_value = self.pythonize_field_value(
+                normalized_field_value = self.normalize_field_value(
                     field_id, field_value
                 )
-                current_record[self.tracked_field(field)] = pythonized_field_value
+                current_record[self.tracked_field(field)] = normalized_field_value
 
             record_dicts.append(current_record)
 
@@ -169,7 +169,7 @@ class JiraTimeMachine:
         field_info = self.field_info_by_name(field_name)
         return field_info["id"]
 
-    def pythonize_field_value(self, field_id, field_value):
+    def normalize_field_value(self, field_id, field_value):
         field_info = self.field_info_by_id(field_id)
         field_schema = field_info["schema"]
         if field_schema["type"] == "user":
@@ -182,7 +182,7 @@ class JiraTimeMachine:
         else:
             return field_value
 
-    def pythonize_field_value_string(self, field_id, field_value):
+    def normalize_field_value_string(self, field_id, field_value):
         field_info = self.field_info_by_id(field_id)
         field_schema = field_info["schema"]
         if field_schema["type"] == "array":
