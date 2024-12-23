@@ -68,8 +68,8 @@ class JiraTimeMachine:
                             change.author, "displayName", "Unknown"
                         )
                         change_record[self.change_field("field")] = item.field
-                        change_record[self.change_field("from")] = item.fromString
-                        change_record[self.change_field("to")] = item.toString
+                        change_record[self.change_field("from")] = self.pythonize_field_value_string(item.field, item.fromString)
+                        change_record[self.change_field("to")] = self.pythonize_field_value_string(item.field, item.toString)
 
                         record_dicts.append(change_record)
 
@@ -168,6 +168,15 @@ class JiraTimeMachine:
         field_schema = field_info["schema"]
         if field_schema["type"] == "user":
             return field_value.displayName
+        else:
+            return field_value
+
+    def pythonize_field_value_string(self, field_id, field_value):
+        field_info = self.field_info_by_id(field_id)
+        field_schema = field_info["schema"]
+        if field_schema["type"] == "array":
+            if field_schema["items"] == "string":
+                return field_value.split()
         else:
             return field_value
 
