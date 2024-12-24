@@ -125,3 +125,10 @@ def test_snapshot_has_correct_issue_states(jira_time_machine):
     assert snapshot.at["PROJ-0001", "Priority"] == "Major"
     assert snapshot.at["PROJ-0001", "Assignee"] == "Wynton Kelly"
     assert snapshot.at["PROJ-0001", "Labels"] == ["tag1"]
+
+def test_history_throws_exception_on_wrong_field_name(jira_time_machine):
+
+    jql_query = "project = TEST"
+    fields_to_track = ["Not A Field Name"]
+    with pytest.raises(ValueError, match="Could not find field 'Not A Field Name'"):
+        jira_time_machine.history(jql_query, fields_to_track)

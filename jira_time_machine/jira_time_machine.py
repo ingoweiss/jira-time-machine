@@ -216,6 +216,8 @@ class JiraTimeMachine:
             ),
             None,
         )
+        if field_info == None:
+            raise ValueError(f"Could not find field '{field_name}'")
         return field_info
 
     def field_schema_by_id(self, field_id):
