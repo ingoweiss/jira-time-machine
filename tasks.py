@@ -3,10 +3,12 @@ from invoke import task
 import pandas as pd
 import json
 
+
 def convert_to_empty_string(value):
     if pd.isna(value):
         return ""
     return value
+
 
 @task
 def build_mock_data(c):
@@ -55,7 +57,7 @@ def build_mock_data(c):
             elif row["type"] == "current":
                 issue_data["fields"]["status"] = row["status"]
                 issue_data["fields"]["priority"] = row["priority"]
-                if row["assignee"] == '':
+                if row["assignee"] == "":
                     issue_data["fields"]["assignee"] = None
                 else:
                     issue_data["fields"]["assignee"] = {"displayName": row["assignee"]}

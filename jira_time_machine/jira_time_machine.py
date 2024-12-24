@@ -188,7 +188,7 @@ class JiraTimeMachine:
         field_info = self.field_info_by_id(field_id)
         field_schema = field_info["schema"]
         if field_schema["type"] == "user":
-            if field_value == '':
+            if field_value == "":
                 return None
             else:
                 return field_value
