@@ -116,10 +116,12 @@ def test_snapshot_includes_correct_issues(jira_time_machine):
 
 def test_snapshot_has_correct_issue_states(jira_time_machine):
     jql_query = "project = TEST"
-    fields_to_track = ["Status", "Assignee", "Priority"]
+    fields_to_track = ["Status", "Assignee", "Priority", "Labels"]
     history_df = jira_time_machine.history(jql_query, fields_to_track)
     dt = pd.to_datetime("2024-10-16", utc=True)
     snapshot = jira_time_machine.snapshot(history_df, dt)
 
     assert snapshot.at["PROJ-0001", "Status"] == "New"
     assert snapshot.at["PROJ-0001", "Priority"] == "Major"
+    assert snapshot.at["PROJ-0001", "Assignee"] == "Wynton Kelly"
+    assert snapshot.at["PROJ-0001", "Labels"] == ["tag1"]
