@@ -27,7 +27,7 @@ class JiraTimeMachine:
             field for field in self.jira.fields() if field["name"] in tracked_fields
         ]
         self.tracked_field_ids = [f["id"] for f in self.tracked_fields_info]
-        issues = self.jira.search_issues(
+        self.issues = self.jira.search_issues(
             jql_query, expand="changelog", maxResults=False
         )
         record_dicts = []
@@ -38,7 +38,7 @@ class JiraTimeMachine:
         )
         record_template = {k: np.nan for k in headers}
 
-        for issue in tqdm(issues, desc="Processing issues"):
+        for issue in tqdm(self.issues, desc="Processing issues"):
             issue_id = issue.key
             created_at = pd.to_datetime(issue.fields.created)
             reporter = getattr(issue.fields.reporter, "displayName", "Unknown")
@@ -68,8 +68,14 @@ class JiraTimeMachine:
                             change.author, "displayName", "Unknown"
                         )
                         change_record[self.change_field("field")] = item.field
-                        change_record[self.change_field("from")] = item.fromString
-                        change_record[self.change_field("to")] = item.toString
+                        change_record[self.change_field("from")] = (
+                            self.normalize_field_value_string(
+                                item.field, item.fromString
+                            )
+                        )
+                        change_record[self.change_field("to")] = (
+                            self.normalize_field_value_string(item.field, item.toString)
+                        )
 
                         record_dicts.append(change_record)
 
@@ -80,9 +86,12 @@ class JiraTimeMachine:
             current_record[self.record_field("type")] = "current"
             current_record[self.record_field("author")] = "System"
             for field in tracked_fields:
-                current_record[self.tracked_field(field)] = getattr(
-                    issue.fields, self.field_id_by_name(field), np.nan
+                field_id = self.field_id_by_name(field)
+                field_value = getattr(issue.fields, field_id, np.nan)
+                normalized_field_value = self.normalize_field_value(
+                    field_id, field_value
                 )
+                current_record[self.tracked_field(field)] = normalized_field_value
 
             record_dicts.append(current_record)
 
@@ -101,6 +110,8 @@ class JiraTimeMachine:
                 self.tracked_field(field),
             ] = history[self.change_field("to")]
 
+        # Temporariliy replace initial 'NaN' values so that backfilled values do not
+        # spill over into the next issue
         fill_blocker = "[[BLOCKER]]"
         history.loc[history[self.record_field("type")] == "initial", "Tracked"] = (
             fill_blocker
@@ -151,6 +162,43 @@ class JiraTimeMachine:
         return snapshot
 
     def field_name_by_id(self, field_id):
+        field_info = self.field_info_by_id(field_id)
+        return field_info["name"]
+
+    def field_id_by_name(self, field_name):
+        field_info = self.field_info_by_name(field_name)
+        return field_info["id"]
+
+    def normalize_field_value(self, field_id, field_value):
+        field_info = self.field_info_by_id(field_id)
+        field_schema = field_info["schema"]
+        if field_value == None:
+            return None
+        elif field_schema["type"] == "user":
+            return field_value.displayName
+        elif field_schema["type"] == "array":
+            if field_schema["items"] == "version":
+                return [v["name"] for v in field_value]
+            else:
+                return field_value
+        else:
+            return field_value
+
+    def normalize_field_value_string(self, field_id, field_value):
+        field_info = self.field_info_by_id(field_id)
+        field_schema = field_info["schema"]
+        if field_schema["type"] == "user":
+            if field_value == "":
+                return None
+            else:
+                return field_value
+        elif field_schema["type"] == "array":
+            if field_schema["items"] in ["string", "version"]:
+                return field_value.split()
+        else:
+            return field_value
+
+    def field_info_by_id(self, field_id):
         field_info = next(
             (
                 f
@@ -159,9 +207,9 @@ class JiraTimeMachine:
             ),
             None,
         )
-        return field_info["name"]
+        return field_info
 
-    def field_id_by_name(self, field_name):
+    def field_info_by_name(self, field_name):
         field_info = next(
             (
                 f
@@ -170,7 +218,11 @@ class JiraTimeMachine:
             ),
             None,
         )
-        return field_info["id"]
+        return field_info
+
+    def field_schema_by_id(self, field_id):
+        field_info = self.field_info_by_id(field_id)
+        return field_info["schema"]
 
     def record_field(self, field_name):
         return ("Record", field_name)

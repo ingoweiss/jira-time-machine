@@ -24,13 +24,17 @@ class MockIssue:
         self.fields.reporter = MagicMock(
             displayName=issue_data["fields"]["reporter"]["displayName"]
         )
-        self.fields.assignee = MagicMock(
-            displayName=issue_data["fields"]["assignee"]["displayName"]
-        )
+        if issue_data["fields"]["assignee"] == None:
+            self.fields.assignee = None
+        else:
+            self.fields.assignee = MagicMock(
+                displayName=issue_data["fields"]["assignee"]["displayName"]
+            )
         self.fields.status = issue_data["fields"]["status"]
         self.fields.priority = issue_data["fields"]["priority"]
         self.fields.type = issue_data["fields"]["type"]
         self.fields.summary = issue_data["fields"]["summary"]
+        self.fields.labels = issue_data["fields"]["labels"]
         self.changelog = MockChangelog(issue_data.get("changelog", {}))
 
 

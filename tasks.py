@@ -1,13 +1,30 @@
+from invoke import task
+
 import pandas as pd
 import json
 
 
-def convert_csv_to_mock_json():
+def convert_to_empty_string(value):
+    if pd.isna(value):
+        return ""
+    return value
 
-    input_csv = "mock_data.csv"
-    output_json = "mock_jira_issues.json"
+
+@task
+def build_mock_data(c):
+
+    input_csv = "tests/mock_data/mock_jira_history.csv"
+    output_json = "tests/mock_data/mock_jira_issues.json"
     # Read the CSV file
-    df = pd.read_csv(input_csv)
+    df = pd.read_csv(
+        input_csv,
+        na_filter=False,
+        converters={
+            "from": convert_to_empty_string,
+            "to": convert_to_empty_string,
+            "labels": convert_to_empty_string,
+        },
+    )
 
     # Dictionary to hold the mock data
     mock_data = {"issues": []}
@@ -21,8 +38,8 @@ def convert_csv_to_mock_json():
             "key": issue_id,
             "fields": {
                 "created": None,
-                "reporter": {"displayName": None},
-                "assignee": {"displayName": None},
+                "reporter": None,
+                "assignee": None,
                 "status": None,
                 "priority": None,
                 "type": None,
@@ -35,13 +52,17 @@ def convert_csv_to_mock_json():
             # Handle 'initial' and 'current' fields
             if row["type"] == "initial":
                 issue_data["fields"]["created"] = row["date"]
-                issue_data["fields"]["reporter"]["displayName"] = row["author"]
+                issue_data["fields"]["reporter"] = {"displayName": row["author"]}
 
             elif row["type"] == "current":
                 issue_data["fields"]["status"] = row["status"]
                 issue_data["fields"]["priority"] = row["priority"]
-                issue_data["fields"]["assignee"]["displayName"] = row["assignee"]
+                if row["assignee"] == "":
+                    issue_data["fields"]["assignee"] = None
+                else:
+                    issue_data["fields"]["assignee"] = {"displayName": row["assignee"]}
                 issue_data["fields"]["summary"] = row["summary"]
+                issue_data["fields"]["labels"] = row["labels"].split()
 
             # Handle changes
             elif row["type"] == "change":
@@ -63,7 +84,3 @@ def convert_csv_to_mock_json():
     # Write the JSON output
     with open(output_json, "w") as f:
         json.dump(mock_data, f, indent=4)
-
-
-if __name__ == "__main__":
-    convert_csv_to_mock_json()

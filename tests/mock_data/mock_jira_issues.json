@@ -7,16 +7,44 @@
                 "reporter": {
                     "displayName": "Tommy Flanagan"
                 },
-                "assignee": {
-                    "displayName": "Wynton Kelly"
-                },
+                "assignee": null,
                 "status": "Submitted",
                 "priority": "Major",
                 "type": null,
-                "summary": "Bye Bye Blackbird"
+                "summary": "Bye Bye Blackbird",
+                "labels": [
+                    "tag1",
+                    "tag2"
+                ]
             },
             "changelog": {
                 "histories": [
+                    {
+                        "created": "2024-11-06T15:00:00.000+0000",
+                        "author": {
+                            "displayName": "Wynton Kelly"
+                        },
+                        "items": [
+                            {
+                                "field": "assignee",
+                                "fromString": "Tommy Flanagan",
+                                "toString": ""
+                            }
+                        ]
+                    },
+                    {
+                        "created": "2024-11-05T15:00:00.000+0000",
+                        "author": {
+                            "displayName": "Tommy Flanagan"
+                        },
+                        "items": [
+                            {
+                                "field": "labels",
+                                "fromString": "tag1",
+                                "toString": "tag1 tag2"
+                            }
+                        ]
+                    },
                     {
                         "created": "2024-11-02T15:00:00.000+0000",
                         "author": {
@@ -27,6 +55,19 @@
                                 "field": "status",
                                 "fromString": "New",
                                 "toString": "Submitted"
+                            }
+                        ]
+                    },
+                    {
+                        "created": "2024-10-18T15:00:00.000+0000",
+                        "author": {
+                            "displayName": "Tommy Flanagan"
+                        },
+                        "items": [
+                            {
+                                "field": "assignee",
+                                "fromString": "Wynton Kelly",
+                                "toString": "Tommy Flanagan"
                             }
                         ]
                     },
@@ -59,7 +100,8 @@
                 "status": "New",
                 "priority": "Major",
                 "type": null,
-                "summary": "The Way you Look Tonight"
+                "summary": "The Way you Look Tonight",
+                "labels": []
             },
             "changelog": {
                 "histories": []

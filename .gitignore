@@ -4,6 +4,7 @@ tests/__pycache__/
 tests/.DS_Store
 .ipynb_checkpoints/
 .vscode/
+.coverage
 *.ipynb
 dist/
 *.pkg
