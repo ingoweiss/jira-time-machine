@@ -7,9 +7,7 @@
                 "reporter": {
                     "displayName": "Tommy Flanagan"
                 },
-                "assignee": {
-                    "displayName": "Tommy Flanagan"
-                },
+                "assignee": null,
                 "status": "Submitted",
                 "priority": "Major",
                 "type": null,
@@ -21,6 +19,19 @@
             },
             "changelog": {
                 "histories": [
+                    {
+                        "created": "2024-11-06T15:00:00.000+0000",
+                        "author": {
+                            "displayName": "Wynton Kelly"
+                        },
+                        "items": [
+                            {
+                                "field": "assignee",
+                                "fromString": "Tommy Flanagan",
+                                "toString": ""
+                            }
+                        ]
+                    },
                     {
                         "created": "2024-11-05T15:00:00.000+0000",
                         "author": {

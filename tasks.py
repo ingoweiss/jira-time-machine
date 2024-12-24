@@ -36,8 +36,8 @@ def build_mock_data(c):
             "key": issue_id,
             "fields": {
                 "created": None,
-                "reporter": {"displayName": None},
-                "assignee": {"displayName": None},
+                "reporter": None,
+                "assignee": None,
                 "status": None,
                 "priority": None,
                 "type": None,
@@ -50,12 +50,15 @@ def build_mock_data(c):
             # Handle 'initial' and 'current' fields
             if row["type"] == "initial":
                 issue_data["fields"]["created"] = row["date"]
-                issue_data["fields"]["reporter"]["displayName"] = row["author"]
+                issue_data["fields"]["reporter"] = {"displayName": row["author"]}
 
             elif row["type"] == "current":
                 issue_data["fields"]["status"] = row["status"]
                 issue_data["fields"]["priority"] = row["priority"]
-                issue_data["fields"]["assignee"]["displayName"] = row["assignee"]
+                if row["assignee"] == '':
+                    issue_data["fields"]["assignee"] = None
+                else:
+                    issue_data["fields"]["assignee"] = {"displayName": row["assignee"]}
                 issue_data["fields"]["summary"] = row["summary"]
                 issue_data["fields"]["labels"] = row["labels"].split()
 

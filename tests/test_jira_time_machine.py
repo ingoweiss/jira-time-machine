@@ -25,16 +25,14 @@ def test_history_has_issue_initial_state_and_changes(jira_time_machine):
     proj_0001_records = history_df[history_df[("Record", "issue_id")] == "PROJ-0001"]
     proj_0002_records = history_df[history_df[("Record", "issue_id")] == "PROJ-0002"]
 
-    # PROJ-0001 has 3 records: 1 initial and 2 changes
-    assert len(proj_0001_records) == 5
+    assert len(proj_0001_records) == 6
     assert (
         len(proj_0001_records[proj_0001_records[("Record", "type")] == "initial"]) == 1
     )
     assert (
-        len(proj_0001_records[proj_0001_records[("Record", "type")] == "change"]) == 4
+        len(proj_0001_records[proj_0001_records[("Record", "type")] == "change"]) == 5
     )
 
-    # PROJ-0002 has 1 record: 1 initial and no changes
     assert len(proj_0002_records) == 1
     assert (
         len(proj_0002_records[proj_0002_records[("Record", "type")] == "initial"]) == 1
@@ -78,6 +76,7 @@ def test_history_has_correct_current_states(jira_time_machine):
     assert proj_0001_last_record[("Tracked", "Status")] == "Submitted"
     assert proj_0001_last_record[("Tracked", "Priority")] == "Major"
     assert proj_0001_last_record[("Tracked", "Labels")] == ["tag1", "tag2"]
+    assert proj_0001_last_record[("Tracked", "Assignee")] == None
 
     proj_0002_last_record = history_df[
         history_df[("Record", "issue_id")] == "PROJ-0002"
@@ -101,7 +100,7 @@ def test_history_handles_user_type_fiels_correctly(jira_time_machine):
     proj_0001_last_record = history_df[
         history_df[("Record", "issue_id")] == "PROJ-0001"
     ].iloc[-1]
-    assert proj_0001_last_record[("Tracked", "Assignee")] == "Tommy Flanagan"
+    assert proj_0001_last_record[("Tracked", "Assignee")] == None
 
 
 def test_snapshot_includes_correct_issues(jira_time_machine):

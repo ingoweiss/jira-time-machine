@@ -172,7 +172,9 @@ class JiraTimeMachine:
     def normalize_field_value(self, field_id, field_value):
         field_info = self.field_info_by_id(field_id)
         field_schema = field_info["schema"]
-        if field_schema["type"] == "user":
+        if field_value == None:
+            return None
+        elif field_schema["type"] == "user":
             return field_value.displayName
         elif field_schema["type"] == "array":
             if field_schema["items"] == "version":
@@ -185,7 +187,12 @@ class JiraTimeMachine:
     def normalize_field_value_string(self, field_id, field_value):
         field_info = self.field_info_by_id(field_id)
         field_schema = field_info["schema"]
-        if field_schema["type"] == "array":
+        if field_schema["type"] == "user":
+            if field_value == '':
+                return None
+            else:
+                return field_value
+        elif field_schema["type"] == "array":
             if field_schema["items"] in ["string", "version"]:
                 return field_value.split()
         else:
