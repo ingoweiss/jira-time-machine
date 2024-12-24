@@ -161,10 +161,6 @@ class JiraTimeMachine:
         snapshot.index.name = "issue_id"
         return snapshot
 
-    def field_name_by_id(self, field_id):
-        field_info = self.field_info_by_id(field_id)
-        return field_info["name"]
-
     def field_id_by_name(self, field_name):
         field_info = self.field_info_by_name(field_name)
         return field_info["id"]
