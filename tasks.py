@@ -11,7 +11,7 @@ def convert_to_empty_string(value):
 @task
 def build_mock_data(c):
 
-    input_csv = "tests/mock_data/mock_data.csv"
+    input_csv = "tests/mock_data/mock_jira_history.csv"
     output_json = "tests/mock_data/mock_jira_issues.json"
     # Read the CSV file
     df = pd.read_csv(
