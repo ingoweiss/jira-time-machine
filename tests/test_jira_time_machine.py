@@ -126,6 +126,7 @@ def test_snapshot_has_correct_issue_states(jira_time_machine):
     assert snapshot.at["PROJ-0001", "Assignee"] == "Wynton Kelly"
     assert snapshot.at["PROJ-0001", "Labels"] == ["tag1"]
 
+
 def test_history_throws_exception_on_wrong_field_name(jira_time_machine):
 
     jql_query = "project = TEST"
