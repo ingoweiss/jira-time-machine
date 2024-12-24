@@ -136,7 +136,9 @@ class JiraTimeMachine:
                 self.tracked_field(field),
             ] = history[self.change_field("to")]
 
-        # remove the 'current' records. They are redundant since the last 'change' record or the 'initial' record (if there are no 'change' records) already has the current state
+        # remove the 'current' records. They are redundant since the last 'change' record or
+        # the 'initial' record (if there are no 'change' records) already has the current state
+        # TODO: Might want to sanity check last change state == current state before removing
         history = history[history[self.record_field("type")] != "current"]
         return history
 
