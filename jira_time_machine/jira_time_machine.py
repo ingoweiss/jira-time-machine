@@ -237,15 +237,25 @@ class JiraTimeMachine:
         """
         field_info = self.field_info_by_id(field_id)
         field_schema = field_info["schema"]
+        field_type = field_schema["type"]
+
+        if field_value == '':
+            return None
+        if field_type == "string":
+            return field_value
+        elif field_type in ["status", "priority", "resolution"]:
+            return field_value
         if field_schema["type"] == "user":
-            if field_value == "":
-                return None
-            else:
-                return field_value
+            return field_value
         elif field_schema["type"] == "array":
-            if field_schema["items"] in ["string", "version"]:
+            item_type = field_schema["items"]
+            if item_type in ["string", "version"]:
                 return field_value.split()
+            else:
+                self.logger.warning(f"Unsupported array field item type '{item_type}'")
+                return field_value
         else:
+            self.logger.warning(f"Unsupported field type '{field_type}'")
             return field_value
 
     def field_info_by_id(self, field_id):
