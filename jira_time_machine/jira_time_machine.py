@@ -238,7 +238,7 @@ class JiraTimeMachine:
         Returns:
             dict: The field information.
 
-                   Raises:
+        Raises:
             ValueError: If the field ID is not found.
         """
         field_info = next(
