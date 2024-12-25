@@ -62,6 +62,7 @@ def test_history_has_correct_initial_states(jira_time_machine):
     ].iloc[0]
     assert proj_0002_initial_record[("Tracked", "Status")] == "New"
     assert proj_0002_initial_record[("Tracked", "Priority")] == "Major"
+    assert proj_0002_initial_record[("Tracked", "Labels")] == []
     assert proj_0002_initial_record[("Record", "author")] == "Red Garland"
 
 
@@ -84,6 +85,7 @@ def test_history_has_correct_current_states(jira_time_machine):
     assert proj_0002_last_record[("Tracked", "Status")] == "New"
     assert proj_0002_last_record[("Tracked", "Priority")] == "Major"
     assert proj_0002_last_record[("Tracked", "Labels")] == []
+    assert proj_0002_last_record[("Tracked", "Assignee")] == "Red Garland"
 
 
 def test_history_handles_user_type_fiels_correctly(jira_time_machine):

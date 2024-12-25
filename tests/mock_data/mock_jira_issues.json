@@ -8,8 +8,12 @@
                     "displayName": "Tommy Flanagan"
                 },
                 "assignee": null,
-                "status": "Submitted",
-                "priority": "Major",
+                "status": {
+                    "name": "Submitted"
+                },
+                "priority": {
+                    "name": "Major"
+                },
                 "type": null,
                 "summary": "Bye Bye Blackbird",
                 "labels": [
@@ -97,8 +101,12 @@
                 "assignee": {
                     "displayName": "Red Garland"
                 },
-                "status": "New",
-                "priority": "Major",
+                "status": {
+                    "name": "New"
+                },
+                "priority": {
+                    "name": "Major"
+                },
                 "type": null,
                 "summary": "The Way you Look Tonight",
                 "labels": []

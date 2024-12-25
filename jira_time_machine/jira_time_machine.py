@@ -1,6 +1,7 @@
 import pandas as pd
 from tqdm import tqdm
 import numpy as np
+import logging
 
 
 class JiraTimeMachine:
@@ -13,6 +14,7 @@ class JiraTimeMachine:
             jira_instance: An instance of the JIRA class.
         """
         self.jira = jira_instance
+        self.logger = logging.getLogger(__name__)
 
     def history(self, jql_query, tracked_fields):
         """
@@ -90,7 +92,7 @@ class JiraTimeMachine:
             current_record[self.record_field("author")] = "System"
             for field in tracked_fields:
                 field_id = self.field_id_by_name(field)
-                field_value = getattr(issue.fields, field_id, np.nan)
+                field_value = getattr(issue.fields, field_id, np.nan) # TODO: Maybe no fallback to np.nan here?
                 normalized_field_value = self.normalize_field_value(
                     field_id, field_value
                 )
@@ -190,18 +192,34 @@ class JiraTimeMachine:
         Returns:
             The normalized field value.
         """
+        # String
+        # Status, Priority, Recolution: Name
+        # User: DisplayName
+        # Array: [String], [Version]
+
         field_info = self.field_info_by_id(field_id)
         field_schema = field_info["schema"]
+        field_type = field_schema["type"]
+
         if field_value == None:
             return None
+        elif field_type == "string":
+            return field_value
+        elif field_type in ["status", "priority", "resolution"]:
+            return field_value.name
         elif field_schema["type"] == "user":
             return field_value.displayName
         elif field_schema["type"] == "array":
-            if field_schema["items"] == "version":
+            item_type = field_schema["items"]
+            if item_type == "version":
                 return [v["name"] for v in field_value]
+            elif item_type == "string":
+                return [v for v in field_value]
             else:
+                self.logger.warning(f"Unsupported array field item type '{item_type}'")
                 return field_value
         else:
+            self.logger.warning(f"Unsupported field type '{field_type}'")
             return field_value
 
     def normalize_field_value_string(self, field_id, field_value):

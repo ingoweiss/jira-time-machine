@@ -55,8 +55,8 @@ def build_mock_data(c):
                 issue_data["fields"]["reporter"] = {"displayName": row["author"]}
 
             elif row["type"] == "current":
-                issue_data["fields"]["status"] = row["status"]
-                issue_data["fields"]["priority"] = row["priority"]
+                issue_data["fields"]["status"] = {"name": row["status"]}
+                issue_data["fields"]["priority"] = {"name": row["priority"]}
                 if row["assignee"] == "":
                     issue_data["fields"]["assignee"] = None
                 else:
