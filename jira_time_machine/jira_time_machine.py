@@ -255,7 +255,6 @@ class JiraTimeMachine:
                 return field_value
         elif field_type in ["string", "status", "priority", "resolution", "user"]:
             if field_value == "":
-                # TODO: array type fields should return [] instead of None
                 # Mark blank values so that they are not overridden by ffill/bfill
                 # operations. We are going to restore these to 'None' later
                 return JiraTimeMachine.BLANK
