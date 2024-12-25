@@ -6,6 +6,9 @@ import logging
 
 class JiraTimeMachine:
 
+    BLOCKER = "[[BLOCKER]]"
+    BLANK = "[[BLANK]]"
+
     def __init__(self, jira_instance):
         """
         Initialize the JiraTimeMachine instance.
@@ -119,12 +122,11 @@ class JiraTimeMachine:
 
         # Temporariliy replace initial 'NaN' values so that backfilled values do not
         # spill over into the next issue
-        fill_blocker = "[[BLOCKER]]"
         history.loc[history[self.record_field("type")] == "initial", "Tracked"] = (
-            fill_blocker
+            JiraTimeMachine.BLOCKER
         )
         history["Tracked"] = history["Tracked"].ffill()
-        history["Tracked"] = history["Tracked"].replace(fill_blocker, np.nan)
+        history["Tracked"] = history["Tracked"].replace(JiraTimeMachine.BLOCKER, np.nan)
 
         # Second, backward fill from the change 'from' values:
         for field in tracked_fields:
@@ -135,7 +137,7 @@ class JiraTimeMachine:
             ] = history[self.change_field("from")]
         history["Tracked"] = history["Tracked"].bfill()
 
-        # Finally, restore the change 'to' values:
+        # Third, restore the change 'to' values:
         for field in tracked_fields:
             field_id = self.field_id_by_name(field)
             history.loc[
@@ -143,7 +145,10 @@ class JiraTimeMachine:
                 self.tracked_field(field),
             ] = history[self.change_field("to")]
 
-        # remove the 'current' records. They are redundant since the last 'change' record or
+        # Finally, restore marked blank values to 'None'
+        history["Tracked"] = history["Tracked"].replace(JiraTimeMachine.BLANK, None)
+
+        # (5) Remove the 'current' records. They are redundant since the last 'change' record or
         # the 'initial' record (if there are no 'change' records) already has the current state
         # TODO: Might want to sanity check last change state == current state before removing
         history = history[history[self.record_field("type")] != "current"]
@@ -204,7 +209,9 @@ class JiraTimeMachine:
         field_type = field_schema["type"]
 
         if field_value == None:
-            return None
+            # Mark blank values so that they are not overridden by ffill/bfill
+            # operations. We are going to restore these to 'None' later
+            return JiraTimeMachine.BLANK
         elif field_type == "string":
             return field_value
         elif field_type in ["status", "priority", "resolution"]:
@@ -240,7 +247,9 @@ class JiraTimeMachine:
         field_type = field_schema["type"]
 
         if field_value == "":
-            return None
+            # Mark blank values so that they are not overridden by ffill/bfill
+            # operations. We are going to restore these to 'None' later
+            return JiraTimeMachine.BLANK
         if field_type == "string":
             return field_value
         elif field_type in ["status", "priority", "resolution"]:
