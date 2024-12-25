@@ -7,7 +7,10 @@ class JiraTimeMachine:
 
     def __init__(self, jira_instance):
         """
-        Initialize the JiraTimeMachine instance with a jiRA instance.
+        Initialize the JiraTimeMachine instance.
+
+        Args:
+            jira_instance: An instance of the JIRA class.
         """
         self.jira = jira_instance
 
@@ -144,14 +147,14 @@ class JiraTimeMachine:
 
     def snapshot(self, history, dt):
         """
-        Get the snapshot of the backlog at a specific timestamp.
+        Get the snapshot of the project at a specific timestamp.
 
         Args:
             history (pd.DataFrame): The history DataFrame.
             dt (pd.Timestamp): The timestamp for the snapshot.
 
         Returns:
-            pd.DataFrame: A snapshot of the backlog at the given timestamp.
+            pd.DataFrame: A snapshot of the project at the given timestamp.
         """
         snapshot = (
             history[history[self.record_field("date")] <= dt]
@@ -164,10 +167,29 @@ class JiraTimeMachine:
         return snapshot
 
     def field_id_by_name(self, field_name):
+        """
+        Get the field ID for a given field name.
+
+        Args:
+            field_name (str): The name of the field.
+
+        Returns:
+            str: The ID of the field.
+        """
         field_info = self.field_info_by_name(field_name)
         return field_info["id"]
 
     def normalize_field_value(self, field_id, field_value):
+        """
+        Normalize a field value according to its schema.
+
+        Args:
+            field_id (str): The ID of the field.
+            field_value: The raw field value.
+
+        Returns:
+            The normalized field value.
+        """
         field_info = self.field_info_by_id(field_id)
         field_schema = field_info["schema"]
         if field_value == None:
@@ -183,6 +205,16 @@ class JiraTimeMachine:
             return field_value
 
     def normalize_field_value_string(self, field_id, field_value):
+        """
+        Normalize a field value string according to its schema.
+
+        Args:
+            field_id (str): The ID of the field.
+            field_value (str): The raw field value string.
+
+        Returns:
+            The normalized field value.
+        """
         field_info = self.field_info_by_id(field_id)
         field_schema = field_info["schema"]
         if field_schema["type"] == "user":
@@ -197,6 +229,18 @@ class JiraTimeMachine:
             return field_value
 
     def field_info_by_id(self, field_id):
+        """
+        Get the field information for a given field ID.
+
+        Args:
+            field_id (str): The ID of the field.
+
+        Returns:
+            dict: The field information.
+
+                   Raises:
+            ValueError: If the field ID is not found.
+        """
         field_info = next(
             (
                 f
@@ -205,9 +249,23 @@ class JiraTimeMachine:
             ),
             None,
         )
+        if field_info == None:
+            raise ValueError(f"Could not find field with ID '{field_name}'")
         return field_info
 
     def field_info_by_name(self, field_name):
+        """
+        Get the field information for a given field name.
+
+        Args:
+            field_name (str): The name of the field.
+
+        Returns:
+            dict: The field information.
+
+        Raises:
+            ValueError: If the field name is not found.
+        """
         field_info = next(
             (
                 f
@@ -217,18 +275,54 @@ class JiraTimeMachine:
             None,
         )
         if field_info == None:
-            raise ValueError(f"Could not find field '{field_name}'")
+            raise ValueError(f"Could not find field with name '{field_name}'")
         return field_info
 
     def field_schema_by_id(self, field_id):
+        """
+        Get the field schema for a given field ID.
+
+        Args:
+            field_id (str): The ID of the field.
+
+        Returns:
+            dict: The field schema.
+        """
         field_info = self.field_info_by_id(field_id)
         return field_info["schema"]
 
     def record_field(self, field_name):
+        """
+        Get the record field tuple for a given field name.
+
+        Args:
+            field_name (str): The name of the field.
+
+        Returns:
+            tuple: The record field tuple.
+        """
         return ("Record", field_name)
 
     def change_field(self, field_name):
+        """
+        Get the change field tuple for a given field name.
+
+        Args:
+            field_name (str): The name of the field.
+
+        Returns:
+            tuple: The change field tuple.
+        """
         return ("Change", field_name)
 
     def tracked_field(self, field_name):
+        """
+        Get the tracked field tuple for a given field name.
+
+        Args:
+            field_name (str): The name of the field.
+
+        Returns:
+            tuple: The tracked field tuple.
+        """
         return ("Tracked", field_name)
