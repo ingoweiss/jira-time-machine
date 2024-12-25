@@ -131,5 +131,7 @@ def test_history_throws_exception_on_wrong_field_name(jira_time_machine):
 
     jql_query = "project = TEST"
     fields_to_track = ["Not A Field Name"]
-    with pytest.raises(ValueError, match="Could not find field with name 'Not A Field Name'"):
+    with pytest.raises(
+        ValueError, match="Could not find field with name 'Not A Field Name'"
+    ):
         jira_time_machine.history(jql_query, fields_to_track)
