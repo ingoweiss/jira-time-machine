@@ -239,7 +239,7 @@ class JiraTimeMachine:
         field_schema = field_info["schema"]
         field_type = field_schema["type"]
 
-        if field_value == '':
+        if field_value == "":
             return None
         if field_type == "string":
             return field_value
