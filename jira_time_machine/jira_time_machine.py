@@ -249,7 +249,7 @@ class JiraTimeMachine:
         if field_schema["type"] == "array":
             item_type = field_schema["items"]
             if item_type in ["string", "version"]:
-                return field_value.split() # this will return [] for empty strings
+                return field_value.split()  # this will return [] for empty strings
             else:
                 self.logger.warning(f"Unsupported array field item type '{item_type}'")
                 return field_value
