@@ -92,7 +92,9 @@ class JiraTimeMachine:
             current_record[self.record_field("author")] = "System"
             for field in tracked_fields:
                 field_id = self.field_id_by_name(field)
-                field_value = getattr(issue.fields, field_id, np.nan) # TODO: Maybe no fallback to np.nan here?
+                field_value = getattr(
+                    issue.fields, field_id, np.nan
+                )  # TODO: Maybe no fallback to np.nan here?
                 normalized_field_value = self.normalize_field_value(
                     field_id, field_value
                 )
