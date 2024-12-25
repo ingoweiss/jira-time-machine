@@ -246,22 +246,20 @@ class JiraTimeMachine:
         field_schema = field_info["schema"]
         field_type = field_schema["type"]
 
-        if field_value == "":
-            # Mark blank values so that they are not overridden by ffill/bfill
-            # operations. We are going to restore these to 'None' later
-            return JiraTimeMachine.BLANK
-        if field_type == "string":
-            return field_value
-        elif field_type in ["status", "priority", "resolution"]:
-            return field_value
-        if field_schema["type"] == "user":
-            return field_value
-        elif field_schema["type"] == "array":
+        if field_schema["type"] == "array":
             item_type = field_schema["items"]
             if item_type in ["string", "version"]:
-                return field_value.split()
+                return field_value.split() # this will return [] for empty strings
             else:
                 self.logger.warning(f"Unsupported array field item type '{item_type}'")
+                return field_value
+        elif field_type in ["string", "status", "priority", "resolution", "user"]:
+            if field_value == "":
+                # TODO: array type fields should return [] instead of None
+                # Mark blank values so that they are not overridden by ffill/bfill
+                # operations. We are going to restore these to 'None' later
+                return JiraTimeMachine.BLANK
+            else:
                 return field_value
         else:
             self.logger.warning(f"Unsupported field type '{field_type}'")
