@@ -31,12 +31,12 @@ class JiraTimeMachine:
         Returns:
             pd.DataFrame: A DataFrame with issue states over time.
         """
-        self.tracked_fields = tracked_fields
-        self.tracked_fields_info = [
+        self.tracked_fields: List[str] = tracked_fields
+        self.tracked_fields_info: List[Dict] = [
             field for field in self.jira.fields() if field["name"] in tracked_fields
         ]
-        self.tracked_field_ids = [f["id"] for f in self.tracked_fields_info]
-        self.issues = self.jira.search_issues(
+        self.tracked_field_ids: List[str] = [f["id"] for f in self.tracked_fields_info]
+        self.issues: List = self.jira.search_issues(
             jql_query, expand="changelog", maxResults=False
         )
         record_dicts: List[Dict[Tuple[str, str], Any]] = []
