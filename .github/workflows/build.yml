@@ -37,6 +37,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Install Types
         run: |
+          python -m pip install mypy
           mypy --install-types
       - name: Mypy
         uses: jpetrucciani/mypy-check@master
