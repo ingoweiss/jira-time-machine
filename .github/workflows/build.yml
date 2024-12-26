@@ -30,15 +30,18 @@ jobs:
         uses: jpetrucciani/black-check@master
         with:
           path: '.'
-  # mypy:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v3
-  #     - name: Mypy
-  #       uses: jpetrucciani/mypy-check@master
-  #       with:
-  #         path: 'jira_time_machine/'
+  mypy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Types
+        run: |
+          mypy --install-types
+      - name: Mypy
+        uses: jpetrucciani/mypy-check@master
+        with:
+          path: 'jira_time_machine/'
   # ruff:
   #   runs-on: ubuntu-latest
   #   steps:
