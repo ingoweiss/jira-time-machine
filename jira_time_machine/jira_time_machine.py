@@ -284,14 +284,14 @@ class JiraTimeMachine:
                 for f in self.tracked_fields_info
                 if f["id"] == field_id and not f["custom"]
             ),
-            None,
+            {}
         )
-        if field_info:
-            return field_info
-        else:
+        if not field_info:
             raise ValueError(f"Could not find field with ID '{field_id}'")
+        else:
+            return field_info
 
-    def field_info_by_name(self, field_name: str) -> dict:
+    def field_info_by_name(self, field_name: str) -> Dict:
         """
         Get the field information for a given field name.
 
@@ -304,18 +304,18 @@ class JiraTimeMachine:
         Raises:
             ValueError: If the field name is not found.
         """
-        field_info = next(
+        field_info: Dict = next(
             (
                 f
                 for f in self.tracked_fields_info
                 if f["name"] == field_name and not f["custom"]
             ),
-            None
+            {}
         )
-        if field_info:
-            return field_info
-        else:
+        if not field_info:
             raise ValueError(f"Could not find field with name '{field_name}'")
+        else:
+            return field_info
 
 
     def field_schema_by_id(self, field_id: str) -> dict:
