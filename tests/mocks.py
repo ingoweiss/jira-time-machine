@@ -24,7 +24,7 @@ class MockIssue:
         self.fields.reporter = MagicMock(
             displayName=issue_data["fields"]["reporter"]["displayName"]
         )
-        if issue_data["fields"]["assignee"] == None:
+        if issue_data["fields"]["assignee"] is None:
             self.fields.assignee = None
         else:
             self.fields.assignee = MagicMock(

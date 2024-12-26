@@ -2,7 +2,7 @@ import pandas as pd
 from tqdm import tqdm
 import numpy as np
 import logging
-from typing import Optional, Any, List, Dict, Tuple
+from typing import Any, List, Dict, Tuple
 
 
 class JiraTimeMachine:
@@ -212,7 +212,7 @@ class JiraTimeMachine:
         field_schema: Dict = field_info["schema"]
         field_type: str = field_schema["type"]
 
-        if field_value == None:
+        if field_value is None:
             # Mark blank values so that they are not overridden by ffill/bfill
             # operations. We are going to restore these to 'None' later
             return JiraTimeMachine.BLANK

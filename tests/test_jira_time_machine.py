@@ -77,7 +77,7 @@ def test_history_has_correct_current_states(jira_time_machine):
     assert proj_0001_last_record[("Tracked", "Status")] == "Submitted"
     assert proj_0001_last_record[("Tracked", "Priority")] == "Major"
     assert proj_0001_last_record[("Tracked", "Labels")] == ["tag1", "tag2"]
-    assert proj_0001_last_record[("Tracked", "Assignee")] == None
+    assert proj_0001_last_record[("Tracked", "Assignee")] is None
 
     proj_0002_last_record = history_df[
         history_df[("Record", "issue_id")] == "PROJ-0002"
@@ -102,7 +102,7 @@ def test_history_handles_user_type_fiels_correctly(jira_time_machine):
     proj_0001_last_record = history_df[
         history_df[("Record", "issue_id")] == "PROJ-0001"
     ].iloc[-1]
-    assert proj_0001_last_record[("Tracked", "Assignee")] == None
+    assert proj_0001_last_record[("Tracked", "Assignee")] is None
 
 
 def test_snapshot_includes_correct_issues(jira_time_machine):
