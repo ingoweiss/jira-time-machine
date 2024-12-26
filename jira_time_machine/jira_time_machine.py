@@ -41,8 +41,8 @@ class JiraTimeMachine:
         )
         record_dicts: List[Dict[Tuple[str, str], Any]] = []
         headers: List[Tuple[str, str]] = (
-            [self.record_field(f) for f in ["issue_id", "type", "date", "author"]]
-            + [self.change_field(f) for f in ["field", "from", "to"]]
+            [self.record_field(f) for f in ["Key", "Type", "Date", "Author"]]
+            + [self.change_field(f) for f in ["Field", "From", "To"]]
             + [self.tracked_field(f) for f in tracked_fields]
         )
         record_template: Dict[Tuple[str, str], Any] = {k: np.nan for k in headers}
@@ -56,10 +56,10 @@ class JiraTimeMachine:
             # (1) Add the issue's initial state:
             # Tracked fields will be initially empty - we will reverse engineer them from the changelog later
             initial_record: Dict[Tuple[str, str], Any] = record_template.copy()
-            initial_record[self.record_field("issue_id")] = issue_id
-            initial_record[self.record_field("type")] = "initial"
-            initial_record[self.record_field("date")] = created_at
-            initial_record[self.record_field("author")] = reporter
+            initial_record[self.record_field("Key")] = issue_id
+            initial_record[self.record_field("Type")] = "initial"
+            initial_record[self.record_field("Date")] = created_at
+            initial_record[self.record_field("Author")] = reporter
 
             record_dicts.append(initial_record)
 
@@ -70,19 +70,19 @@ class JiraTimeMachine:
                     change_record = record_template.copy()
                     if item.field in self.tracked_field_ids:
 
-                        change_record[self.record_field("issue_id")] = issue_id
-                        change_record[self.record_field("type")] = "change"
-                        change_record[self.record_field("date")] = change_date
-                        change_record[self.record_field("author")] = getattr(
+                        change_record[self.record_field("Key")] = issue_id
+                        change_record[self.record_field("Type")] = "change"
+                        change_record[self.record_field("Date")] = change_date
+                        change_record[self.record_field("Author")] = getattr(
                             change.author, "displayName", "Unknown"
                         )
-                        change_record[self.change_field("field")] = item.field
-                        change_record[self.change_field("from")] = (
+                        change_record[self.change_field("Field")] = item.field
+                        change_record[self.change_field("From")] = (
                             self.normalize_field_value_string(
                                 item.field, item.fromString
                             )
                         )
-                        change_record[self.change_field("to")] = (
+                        change_record[self.change_field("To")] = (
                             self.normalize_field_value_string(item.field, item.toString)
                         )
 
@@ -90,10 +90,10 @@ class JiraTimeMachine:
 
             # (3) Add the issue's current state which is only needed to reverse engineer the initial state:
             current_record = record_template.copy()
-            current_record[self.record_field("date")] = pd.Timestamp.utcnow()
-            current_record[self.record_field("issue_id")] = issue_id
-            current_record[self.record_field("type")] = "current"
-            current_record[self.record_field("author")] = "System"
+            current_record[self.record_field("Date")] = pd.Timestamp.utcnow()
+            current_record[self.record_field("Key")] = issue_id
+            current_record[self.record_field("Type")] = "current"
+            current_record[self.record_field("Author")] = "System"
             for field in tracked_fields:
                 field_id = self.field_id_by_name(field)
                 field_value = getattr(
@@ -111,7 +111,7 @@ class JiraTimeMachine:
         history.sort_values(
             # Pandas type annotations for the 'by' parameter are incorrect, calling for string or
             # list of strings, but MultiIndex requires a list of tuples instead. Hence the type: ignore
-            by=[self.record_field("issue_id"), self.record_field("date")],
+            by=[self.record_field("Key"), self.record_field("Date")],
             inplace=True,  # type: ignore
         )
 
@@ -120,13 +120,13 @@ class JiraTimeMachine:
         for field in tracked_fields:
             field_id = self.field_id_by_name(field)
             history.loc[
-                history[self.change_field("field")] == field_id,
+                history[self.change_field("Field")] == field_id,
                 self.tracked_field(field),
-            ] = history[self.change_field("to")]
+            ] = history[self.change_field("To")]
 
         # Temporariliy replace initial 'NaN' values so that backfilled values do not
         # spill over into the next issue
-        history.loc[history[self.record_field("type")] == "initial", "Tracked"] = (
+        history.loc[history[self.record_field("Type")] == "initial", "Tracked"] = (
             JiraTimeMachine.BLOCKER
         )
         history["Tracked"] = history["Tracked"].ffill()
@@ -136,18 +136,18 @@ class JiraTimeMachine:
         for field in tracked_fields:
             field_id = self.field_id_by_name(field)
             history.loc[
-                history[self.change_field("field")] == field_id,
+                history[self.change_field("Field")] == field_id,
                 self.tracked_field(field),
-            ] = history[self.change_field("from")]
+            ] = history[self.change_field("From")]
         history["Tracked"] = history["Tracked"].bfill()
 
         # Third, restore the change 'to' values:
         for field in tracked_fields:
             field_id = self.field_id_by_name(field)
             history.loc[
-                history[self.change_field("field")] == field_id,
+                history[self.change_field("Field")] == field_id,
                 self.tracked_field(field),
-            ] = history[self.change_field("to")]
+            ] = history[self.change_field("To")]
 
         # Finally, restore marked blank values to 'None'
         history["Tracked"] = history["Tracked"].replace(JiraTimeMachine.BLANK, None)
@@ -155,7 +155,7 @@ class JiraTimeMachine:
         # (5) Remove the 'current' records. They are redundant since the last 'change' record or
         # the 'initial' record (if there are no 'change' records) already has the current state
         # TODO: Might want to sanity check last change state == current state before removing
-        history = history[history[self.record_field("type")] != "current"]
+        history = history[history[self.record_field("Type")] != "current"]
         return history
 
     def snapshot(self, history: pd.DataFrame, dt: pd.Timestamp) -> pd.DataFrame:
@@ -170,13 +170,13 @@ class JiraTimeMachine:
             pd.DataFrame: A snapshot of the project at the given timestamp.
         """
         snapshot = (
-            history[history[self.record_field("date")] <= dt]
-            .sort_values(self.record_field("date"))
-            .groupby(self.record_field("issue_id"))
+            history[history[self.record_field("Date")] <= dt]
+            .sort_values(self.record_field("Date"))
+            .groupby(self.record_field("Key"))
             .last()[["Tracked"]]
         )
         snapshot.columns = snapshot.columns.droplevel("Section")
-        snapshot.index.name = "issue_id"
+        snapshot.index.name = "Key"
         return snapshot
 
     def field_id_by_name(self, field_name: str) -> str:

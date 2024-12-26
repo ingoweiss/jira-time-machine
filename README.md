@@ -45,7 +45,7 @@ history_df = jira_time_machine.history(jql_query, fields_to_track)
 ```bash
 | Record    |        |            |        | Change   |              |             | Tracked     |          |          |
 |-----------|--------|------------|--------|----------|--------------|-------------|-------------|----------|----------|
-| issue_id  | type   | date       | author | field    | from         | to          | Status      | Assignee | Priority |
+| Key       | Type   | Date       | Author | Field    | From         | To          | Status      | Assignee | Priority |
 | PROJ-0001 | initial| 2022-12-01 | Alice  |          |              |             | New         |          | Major    |
 | PROJ-0001 | change | 2022-12-05 | Bob    | Status   | New          | In Progress | In Progress |          | Major    |
 | PROJ-0001 | change | 2022-12-10 | Carol  | Priority | Major        | Critical    | In Progress |          | Critical |
@@ -60,7 +60,7 @@ snapshot = jira_time_machine.snapshot(history_df, pd.Timestamp('2023-01-01'))
 ```
 
 ```bash
-| issue_id  | Status     | Assignee | Priority |
+| Key       | Status     | Assignee | Priority |
 |-----------|------------|----------|----------|
 | PROJ-0001 | Submitted  |          | Major    |
 | PROJ-0002 | New        |          | Major    |
