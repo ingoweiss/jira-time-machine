@@ -111,7 +111,8 @@ class JiraTimeMachine:
         history.sort_values(
             # Pandas type annotations for the 'by' parameter are incorrect, calling for string or
             # list of strings, but MultiIndex requires a list of tuples instead. Hence the type: ignore
-            by=[self.record_field("issue_id"), self.record_field("date")], inplace=True # type: ignore
+            by=[self.record_field("issue_id"), self.record_field("date")],
+            inplace=True,  # type: ignore
         )
 
         # (4) Reverse engineer tracked field states from the changelog:
@@ -178,7 +179,7 @@ class JiraTimeMachine:
         snapshot.index.name = "issue_id"
         return snapshot
 
-    def field_id_by_name(self, field_name:str) -> str:
+    def field_id_by_name(self, field_name: str) -> str:
         """
         Get the field ID for a given field name.
 
@@ -286,7 +287,7 @@ class JiraTimeMachine:
                 for f in self.tracked_fields_info
                 if f["id"] == field_id and not f["custom"]
             ),
-            {}
+            {},
         )
         if not field_info:
             raise ValueError(f"Could not find field with ID '{field_id}'")
@@ -312,13 +313,12 @@ class JiraTimeMachine:
                 for f in self.tracked_fields_info
                 if f["name"] == field_name and not f["custom"]
             ),
-            {}
+            {},
         )
         if not field_info:
             raise ValueError(f"Could not find field with name '{field_name}'")
         else:
             return field_info
-
 
     def field_schema_by_id(self, field_id: str) -> dict:
         """
