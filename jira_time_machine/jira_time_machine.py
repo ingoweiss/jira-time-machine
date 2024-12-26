@@ -2,14 +2,15 @@ import pandas as pd
 from tqdm import tqdm
 import numpy as np
 import logging
+from typing import Any, List, Dict, Tuple
 
 
 class JiraTimeMachine:
 
-    BLOCKER = "[[BLOCKER]]"
-    BLANK = "[[BLANK]]"
+    BLOCKER: str = "[[BLOCKER]]"
+    BLANK: str = "[[BLANK]]"
 
-    def __init__(self, jira_instance):
+    def __init__(self, jira_instance: Any):
         """
         Initialize the JiraTimeMachine instance.
 
@@ -19,7 +20,7 @@ class JiraTimeMachine:
         self.jira = jira_instance
         self.logger = logging.getLogger(__name__)
 
-    def history(self, jql_query, tracked_fields):
+    def history(self, jql_query: str, tracked_fields: List[str]) -> pd.DataFrame:
         """
         Fetch the full change history of Jira issues for specified fields.
 
@@ -30,31 +31,31 @@ class JiraTimeMachine:
         Returns:
             pd.DataFrame: A DataFrame with issue states over time.
         """
-        self.tracked_fields = tracked_fields
-        self.tracked_fields_info = [
+        self.tracked_fields: List[str] = tracked_fields
+        self.tracked_fields_info: List[Dict] = [
             field for field in self.jira.fields() if field["name"] in tracked_fields
         ]
-        self.tracked_field_ids = [f["id"] for f in self.tracked_fields_info]
-        self.issues = self.jira.search_issues(
+        self.tracked_field_ids: List[str] = [f["id"] for f in self.tracked_fields_info]
+        self.issues: List = self.jira.search_issues(
             jql_query, expand="changelog", maxResults=False
         )
-        record_dicts = []
-        headers = (
+        record_dicts: List[Dict[Tuple[str, str], Any]] = []
+        headers: List[Tuple[str, str]] = (
             [self.record_field(f) for f in ["issue_id", "type", "date", "author"]]
             + [self.change_field(f) for f in ["field", "from", "to"]]
             + [self.tracked_field(f) for f in tracked_fields]
         )
-        record_template = {k: np.nan for k in headers}
+        record_template: Dict[Tuple[str, str], Any] = {k: np.nan for k in headers}
 
         for issue in tqdm(self.issues, desc="Processing issues"):
-            issue_id = issue.key
-            created_at = pd.to_datetime(issue.fields.created)
-            reporter = getattr(issue.fields.reporter, "displayName", "Unknown")
-            changelog = issue.changelog.histories
+            issue_id: str = issue.key
+            created_at: pd.Timestamp = pd.to_datetime(issue.fields.created)
+            reporter: str = getattr(issue.fields.reporter, "displayName", "Unknown")
+            changelog: List[Any] = issue.changelog.histories
 
             # (1) Add the issue's initial state:
             # Tracked fields will be initially empty - we will reverse engineer them from the changelog later
-            initial_record = record_template.copy()
+            initial_record: Dict[Tuple[str, str], Any] = record_template.copy()
             initial_record[self.record_field("issue_id")] = issue_id
             initial_record[self.record_field("type")] = "initial"
             initial_record[self.record_field("date")] = created_at
@@ -105,10 +106,13 @@ class JiraTimeMachine:
 
             record_dicts.append(current_record)
 
-        history = pd.DataFrame(record_dicts)
+        history: pd.DataFrame = pd.DataFrame(record_dicts)
         history.columns = pd.MultiIndex.from_tuples(headers, names=["Section", "Field"])
         history.sort_values(
-            by=[self.record_field("issue_id"), self.record_field("date")], inplace=True
+            # Pandas type annotations for the 'by' parameter are incorrect, calling for string or
+            # list of strings, but MultiIndex requires a list of tuples instead. Hence the type: ignore
+            by=[self.record_field("issue_id"), self.record_field("date")],
+            inplace=True,  # type: ignore
         )
 
         # (4) Reverse engineer tracked field states from the changelog:
@@ -154,7 +158,7 @@ class JiraTimeMachine:
         history = history[history[self.record_field("type")] != "current"]
         return history
 
-    def snapshot(self, history, dt):
+    def snapshot(self, history: pd.DataFrame, dt: pd.Timestamp) -> pd.DataFrame:
         """
         Get the snapshot of the project at a specific timestamp.
 
@@ -175,7 +179,7 @@ class JiraTimeMachine:
         snapshot.index.name = "issue_id"
         return snapshot
 
-    def field_id_by_name(self, field_name):
+    def field_id_by_name(self, field_name: str) -> str:
         """
         Get the field ID for a given field name.
 
@@ -188,7 +192,7 @@ class JiraTimeMachine:
         field_info = self.field_info_by_name(field_name)
         return field_info["id"]
 
-    def normalize_field_value(self, field_id, field_value):
+    def normalize_field_value(self, field_id: str, field_value: Any) -> Any:
         """
         Normalize a field value according to its schema.
 
@@ -204,11 +208,11 @@ class JiraTimeMachine:
         # User: DisplayName
         # Array: [String], [Version]
 
-        field_info = self.field_info_by_id(field_id)
-        field_schema = field_info["schema"]
-        field_type = field_schema["type"]
+        field_info: Dict = self.field_info_by_id(field_id)
+        field_schema: Dict = field_info["schema"]
+        field_type: str = field_schema["type"]
 
-        if field_value == None:
+        if field_value is None:
             # Mark blank values so that they are not overridden by ffill/bfill
             # operations. We are going to restore these to 'None' later
             return JiraTimeMachine.BLANK
@@ -231,7 +235,7 @@ class JiraTimeMachine:
             self.logger.warning(f"Unsupported field type '{field_type}'")
             return field_value
 
-    def normalize_field_value_string(self, field_id, field_value):
+    def normalize_field_value_string(self, field_id: str, field_value: Any) -> Any:
         """
         Normalize a field value string according to its schema.
 
@@ -242,9 +246,9 @@ class JiraTimeMachine:
         Returns:
             The normalized field value.
         """
-        field_info = self.field_info_by_id(field_id)
-        field_schema = field_info["schema"]
-        field_type = field_schema["type"]
+        field_info: Dict = self.field_info_by_id(field_id)
+        field_schema: Dict = field_info["schema"]
+        field_type: str = field_schema["type"]
 
         if field_schema["type"] == "array":
             item_type = field_schema["items"]
@@ -264,7 +268,7 @@ class JiraTimeMachine:
             self.logger.warning(f"Unsupported field type '{field_type}'")
             return field_value
 
-    def field_info_by_id(self, field_id):
+    def field_info_by_id(self, field_id: str) -> Dict:
         """
         Get the field information for a given field ID.
 
@@ -277,19 +281,20 @@ class JiraTimeMachine:
         Raises:
             ValueError: If the field ID is not found.
         """
-        field_info = next(
+        field_info: Dict = next(
             (
                 f
                 for f in self.tracked_fields_info
                 if f["id"] == field_id and not f["custom"]
             ),
-            None,
+            {},
         )
-        if field_info == None:
-            raise ValueError(f"Could not find field with ID '{field_name}'")
-        return field_info
+        if not field_info:
+            raise ValueError(f"Could not find field with ID '{field_id}'")
+        else:
+            return field_info
 
-    def field_info_by_name(self, field_name):
+    def field_info_by_name(self, field_name: str) -> Dict:
         """
         Get the field information for a given field name.
 
@@ -302,19 +307,20 @@ class JiraTimeMachine:
         Raises:
             ValueError: If the field name is not found.
         """
-        field_info = next(
+        field_info: Dict = next(
             (
                 f
                 for f in self.tracked_fields_info
                 if f["name"] == field_name and not f["custom"]
             ),
-            None,
+            {},
         )
-        if field_info == None:
+        if not field_info:
             raise ValueError(f"Could not find field with name '{field_name}'")
-        return field_info
+        else:
+            return field_info
 
-    def field_schema_by_id(self, field_id):
+    def field_schema_by_id(self, field_id: str) -> dict:
         """
         Get the field schema for a given field ID.
 
@@ -327,7 +333,7 @@ class JiraTimeMachine:
         field_info = self.field_info_by_id(field_id)
         return field_info["schema"]
 
-    def record_field(self, field_name):
+    def record_field(self, field_name: str) -> tuple:
         """
         Get the record field tuple for a given field name.
 
@@ -339,7 +345,7 @@ class JiraTimeMachine:
         """
         return ("Record", field_name)
 
-    def change_field(self, field_name):
+    def change_field(self, field_name: str) -> tuple:
         """
         Get the change field tuple for a given field name.
 
@@ -351,7 +357,7 @@ class JiraTimeMachine:
         """
         return ("Change", field_name)
 
-    def tracked_field(self, field_name):
+    def tracked_field(self, field_name: str) -> tuple:
         """
         Get the tracked field tuple for a given field name.
 

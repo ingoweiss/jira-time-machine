@@ -38,7 +38,7 @@ jobs:
   #     - name: Mypy
   #       uses: jpetrucciani/mypy-check@master
   #       with:
-  #         path: 'manyworlds/'
+  #         path: 'jira_time_machine/'
   # ruff:
   #   runs-on: ubuntu-latest
   #   steps:
