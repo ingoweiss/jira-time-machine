@@ -10,7 +10,7 @@
     - status
     - priority
     - resolution
-    - arry of string
+    - array of string
     - array of version
 
 ### Changed
