@@ -205,9 +205,9 @@ class JiraTimeMachine:
         # User: DisplayName
         # Array: [String], [Version]
 
-        field_info = self.field_info_by_id(field_id)
-        field_schema = field_info["schema"]
-        field_type = field_schema["type"]
+        field_info: Dict = self.field_info_by_id(field_id)
+        field_schema: Dict = field_info["schema"]
+        field_type: str = field_schema["type"]
 
         if field_value == None:
             # Mark blank values so that they are not overridden by ffill/bfill
@@ -243,9 +243,9 @@ class JiraTimeMachine:
         Returns:
             The normalized field value.
         """
-        field_info = self.field_info_by_id(field_id)
-        field_schema = field_info["schema"]
-        field_type = field_schema["type"]
+        field_info: Dict = self.field_info_by_id(field_id)
+        field_schema: Dict = field_info["schema"]
+        field_type: str = field_schema["type"]
 
         if field_schema["type"] == "array":
             item_type = field_schema["items"]
