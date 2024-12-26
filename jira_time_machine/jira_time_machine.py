@@ -109,7 +109,9 @@ class JiraTimeMachine:
         history: pd.DataFrame = pd.DataFrame(record_dicts)
         history.columns = pd.MultiIndex.from_tuples(headers, names=["Section", "Field"])
         history.sort_values(
-            by=[self.record_field("issue_id"), self.record_field("date")], inplace=True
+            # Pandas type annotations for the 'by' parameter are incorrect, calling for string or
+            # list of strings, but MultiIndex requires a list of tuples instead. Hence the type: ignore
+            by=[self.record_field("issue_id"), self.record_field("date")], inplace=True # type: ignore
         )
 
         # (4) Reverse engineer tracked field states from the changelog:
