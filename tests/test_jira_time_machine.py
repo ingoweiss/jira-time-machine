@@ -128,6 +128,13 @@ def test_snapshot_has_correct_issue_states(jira_time_machine):
     assert snapshot.at["PROJ-0001", "Assignee"] == "Wynton Kelly"
     assert snapshot.at["PROJ-0001", "Labels"] == ["tag1"]
 
+    dt = pd.to_datetime("2024-11-10", utc=True)
+    snapshot = jira_time_machine.snapshot(history_df, dt)
+    assert snapshot.at["PROJ-0001", "Status"] == "Submitted"
+    assert snapshot.at["PROJ-0001", "Priority"] == "Major"
+    assert snapshot.at["PROJ-0001", "Assignee"] is None
+    assert snapshot.at["PROJ-0001", "Labels"] == ["tag1", "tag2"]
+
 
 def test_history_throws_exception_on_wrong_field_name(jira_time_machine):
 

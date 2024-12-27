@@ -173,7 +173,8 @@ class JiraTimeMachine:
             history[history[self.record_field("Date")] <= dt]
             .sort_values(self.record_field("Date"))
             .groupby(self.record_field("Key"))
-            .last()[["Tracked"]]
+            .tail(1)
+            .set_index(self.record_field("Key"))[["Tracked"]]
         )
         snapshot.columns = snapshot.columns.droplevel("Section")
         snapshot.index.name = "Key"
