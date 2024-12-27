@@ -2,6 +2,12 @@
 
 Jira Time Machine gives access to the state of a Jira project's issues at any time in its history.
 
+[![Build](https://github.com/ingoweiss/jira-time-machine/actions/workflows/build.yml/badge.svg)](https://github.com/ingoweiss/jira-time-machine/actions/workflows/build.yml)
+![PyPI - Version](https://img.shields.io/pypi/v/jira-time-machine)
+![PyPI - License](https://img.shields.io/pypi/l/jira-time-machine)
+[![Downloads](https://static.pepy.tech/badge/jira-time-machine)](https://pepy.tech/project/jira-time-machine)
+![Style Black](https://img.shields.io/badge/style-black-000000)
+
 ## Table of Contents
 
 - [Installation](#installation)
