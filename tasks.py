@@ -2,10 +2,12 @@ from invoke import task
 import pandas as pd
 import json
 
+
 def convert_to_empty_string(value):
     if pd.isna(value):
         return ""
     return value
+
 
 @task
 def build_mock_data(c):
@@ -39,7 +41,7 @@ def build_mock_data(c):
                 "assignee": None,
                 "status": None,
                 "priority": None,
-                "type": None, # TODO: Is this field needed?
+                "type": None,  # TODO: Is this field needed?
                 "summary": None,
                 "labels": [],
             },
@@ -63,7 +65,9 @@ def build_mock_data(c):
                 issue_data["fields"]["labels"] = row["labels"].split()
 
         # Handle changes
-        changes_grouped = group[group["type"] == "change"].groupby(["change_id", "date", "author"])
+        changes_grouped = group[group["type"] == "change"].groupby(
+            ["change_id", "date", "author"]
+        )
         for (change_id, change_date, change_author), change_group in changes_grouped:
             change_items = []
             for _, change_row in change_group.iterrows():

@@ -66,7 +66,9 @@ class JiraTimeMachine:
             # (2) Add changes from issue's changelog:
             for change in changelog:
                 change_date = pd.to_datetime(change.created)
-                relevant_items = [i for i in change.items if i.field in self.tracked_field_ids]
+                relevant_items = [
+                    i for i in change.items if i.field in self.tracked_field_ids
+                ]
                 for item_index, item in enumerate(relevant_items, start=1):
                     change_record = record_template.copy()
 
@@ -80,9 +82,7 @@ class JiraTimeMachine:
                     change_record[self.change_field("Item")] = item_index
                     change_record[self.change_field("Field")] = item.field
                     change_record[self.change_field("From")] = (
-                        self.normalize_field_value_string(
-                            item.field, item.fromString
-                        )
+                        self.normalize_field_value_string(item.field, item.fromString)
                     )
                     change_record[self.change_field("To")] = (
                         self.normalize_field_value_string(item.field, item.toString)
