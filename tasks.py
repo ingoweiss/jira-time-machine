@@ -41,7 +41,6 @@ def build_mock_data(c):
                 "assignee": None,
                 "status": None,
                 "priority": None,
-                "type": None,  # TODO: Is this field needed?
                 "summary": None,
                 "labels": [],
             },
