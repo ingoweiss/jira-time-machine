@@ -185,6 +185,8 @@ class JiraTimeMachine:
         # the 'initial' record (if there are no 'change' records) already has the current state
         # TODO: Might want to sanity check last change state == current state before removing
         history = history[history[self.record_field("Type")] != "current"]
+
+        history.sort_values([("Record", "Date"), ("Change", "Item")], inplace=True)
         return history
 
     def snapshot(self, history: pd.DataFrame, dt: pd.Timestamp) -> pd.DataFrame:
@@ -207,6 +209,7 @@ class JiraTimeMachine:
         )
         snapshot.columns = snapshot.columns.droplevel("Section")
         snapshot.index.name = "Key"
+        snapshot.sort_index(inplace=True)
         return snapshot
 
     def field_id_by_name(self, field_name: str) -> str:
