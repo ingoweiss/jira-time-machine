@@ -29,7 +29,7 @@ def build_mock_data(c):
     mock_data = {"issues": []}
 
     # Group data by issue_id
-    grouped = df.groupby("issue_id")
+    grouped = df.groupby("Key")
 
     for issue_id, group in grouped:
         # Initialize issue fields
@@ -50,31 +50,31 @@ def build_mock_data(c):
 
         for _, row in group.iterrows():
             # Handle 'initial' and 'current' fields
-            if row["type"] == "initial":
-                issue_data["fields"]["created"] = row["date"]
-                issue_data["fields"]["reporter"] = {"displayName": row["author"]}
+            if row["Type"] == "initial":
+                issue_data["fields"]["created"] = row["Date"]
+                issue_data["fields"]["reporter"] = {"displayName": row["Author"]}
 
-            elif row["type"] == "current":
-                issue_data["fields"]["status"] = {"name": row["status"]}
-                issue_data["fields"]["priority"] = {"name": row["priority"]}
-                if row["assignee"] == "":
-                    issue_data["fields"]["assignee"] = None
+            elif row["Type"] == "current":
+                issue_data["fields"]["status"] = {"name": row["Status"]}
+                issue_data["fields"]["priority"] = {"name": row["Priority"]}
+                if row["Assignee"] == "":
+                    issue_data["fields"]["Assignee"] = None
                 else:
-                    issue_data["fields"]["assignee"] = {"displayName": row["assignee"]}
-                issue_data["fields"]["summary"] = row["summary"]
-                issue_data["fields"]["labels"] = row["labels"].split()
+                    issue_data["fields"]["assignee"] = {"displayName": row["Assignee"]}
+                issue_data["fields"]["summary"] = row["Summary"]
+                issue_data["fields"]["labels"] = row["Labels"].split()
 
         # Handle changes
-        changes_grouped = group[group["type"] == "change"].groupby(
-            ["change_id", "date", "author"]
+        changes_grouped = group[group["Type"] == "change"].groupby(
+            ["Change ID", "Date", "Author"]
         )
         for (change_id, change_date, change_author), change_group in changes_grouped:
             change_items = []
             for _, change_row in change_group.iterrows():
                 change_item = {
-                    "field": change_row["field"],
-                    "fromString": change_row["from"],
-                    "toString": change_row["to"],
+                    "field": change_row["Field"],
+                    "fromString": change_row["From"],
+                    "toString": change_row["To"],
                 }
                 change_items.append(change_item)
 

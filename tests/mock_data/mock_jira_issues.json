@@ -19,7 +19,8 @@
                 "labels": [
                     "tag1",
                     "tag2"
-                ]
+                ],
+                "Assignee": null
             },
             "changelog": {
                 "histories": [
