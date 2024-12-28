@@ -42,7 +42,7 @@ class JiraTimeMachine:
         record_dicts: List[Dict[Tuple[str, str], Any]] = []
         headers: List[Tuple[str, str]] = (
             [self.record_field(f) for f in ["Key", "Type", "Date", "Author"]]
-            + [self.change_field(f) for f in ["Field", "From", "To"]]
+            + [self.change_field(f) for f in ["ID", "Field", "From", "To"]]
             + [self.tracked_field(f) for f in tracked_fields]
         )
         record_template: Dict[Tuple[str, str], Any] = {k: np.nan for k in headers}
@@ -76,6 +76,7 @@ class JiraTimeMachine:
                         change_record[self.record_field("Author")] = getattr(
                             change.author, "displayName", "Unknown"
                         )
+                        change_record[self.change_field("ID")] = change.id
                         change_record[self.change_field("Field")] = item.field
                         change_record[self.change_field("From")] = (
                             self.normalize_field_value_string(
