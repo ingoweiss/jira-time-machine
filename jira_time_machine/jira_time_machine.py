@@ -186,7 +186,7 @@ class JiraTimeMachine:
         # TODO: Might want to sanity check last change state == current state before removing
         history = history[history[self.record_field("Type")] != "current"]
 
-        history.sort_values([("Record", "Date"), ("Change", "Item")], inplace=True)
+        history.sort_values([("Record", "Date"), ("Change", "Item")], inplace=True)  # type: ignore
         return history
 
     def snapshot(self, history: pd.DataFrame, dt: pd.Timestamp) -> pd.DataFrame:
