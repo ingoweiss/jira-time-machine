@@ -82,5 +82,14 @@
             "type": "user",
             "system": "reporter"
         }
+    },
+    {
+        "id": "project",
+        "name": "Project",
+        "custom": false,
+        "schema": {
+            "type": "project",
+            "system": "project"
+        }
     }
 ]

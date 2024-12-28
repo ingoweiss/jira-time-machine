@@ -17,11 +17,13 @@ def jira_time_machine(mock_jira):
     with patch("jira.JIRA", return_value=mock_jira):
         return JiraTimeMachine(mock_jira)
 
+
 def test_history_has_only_tracked_fields(jira_time_machine):
     jql_query = "project = TEST"
     fields_to_track = ["Status", "Priority"]
     history_df = jira_time_machine.history(jql_query, fields_to_track)
-    assert list(history_df['Tracked'].columns) == ['Status', 'Priority']
+    assert list(history_df["Tracked"].columns) == ["Status", "Priority"]
+
 
 def test_history_has_issue_initial_state_and_changes(jira_time_machine):
     jql_query = "project = TEST"
