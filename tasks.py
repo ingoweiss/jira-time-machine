@@ -1,5 +1,4 @@
 from invoke import task
-
 import pandas as pd
 import json
 
@@ -12,9 +11,9 @@ def convert_to_empty_string(value):
 
 @task
 def build_mock_data(c):
-
     input_csv = "tests/mock_data/mock_jira_history.csv"
     output_json = "tests/mock_data/mock_jira_issues.json"
+
     # Read the CSV file
     df = pd.read_csv(
         input_csv,
@@ -42,8 +41,9 @@ def build_mock_data(c):
                 "assignee": None,
                 "status": None,
                 "priority": None,
-                "type": None,
+                "type": None,  # TODO: Is this field needed?
                 "summary": None,
+                "labels": [],
             },
             "changelog": {"histories": []},
         }
@@ -64,20 +64,27 @@ def build_mock_data(c):
                 issue_data["fields"]["summary"] = row["summary"]
                 issue_data["fields"]["labels"] = row["labels"].split()
 
-            # Handle changes
-            elif row["type"] == "change":
+        # Handle changes
+        changes_grouped = group[group["type"] == "change"].groupby(
+            ["change_id", "date", "author"]
+        )
+        for (change_id, change_date, change_author), change_group in changes_grouped:
+            change_items = []
+            for _, change_row in change_group.iterrows():
                 change_item = {
-                    "created": row["date"],
-                    "author": {"displayName": row["author"]},
-                    "items": [
-                        {
-                            "field": row["field"],
-                            "fromString": row["from"],
-                            "toString": row["to"],
-                        }
-                    ],
+                    "field": change_row["field"],
+                    "fromString": change_row["from"],
+                    "toString": change_row["to"],
                 }
-                issue_data["changelog"]["histories"].append(change_item)
+                change_items.append(change_item)
+
+            change_data = {
+                "id": change_id,
+                "created": change_date,
+                "author": {"displayName": change_author},
+                "items": change_items,
+            }
+            issue_data["changelog"]["histories"].append(change_data)
 
         mock_data["issues"].append(issue_data)
 

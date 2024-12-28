@@ -49,6 +49,7 @@ class MockChangelog:
 
 class MockHistory:
     def __init__(self, history_data):
+        self.id = history_data["id"]
         self.created = history_data["created"]
         self.author = MagicMock(
             displayName=history_data.get("author", {}).get("displayName", "Unknown")

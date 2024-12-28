@@ -42,7 +42,7 @@ class JiraTimeMachine:
         record_dicts: List[Dict[Tuple[str, str], Any]] = []
         headers: List[Tuple[str, str]] = (
             [self.record_field(f) for f in ["Key", "Type", "Date", "Author"]]
-            + [self.change_field(f) for f in ["Field", "From", "To"]]
+            + [self.change_field(f) for f in ["ID", "Item", "Field", "From", "To"]]
             + [self.tracked_field(f) for f in tracked_fields]
         )
         record_template: Dict[Tuple[str, str], Any] = {k: np.nan for k in headers}
@@ -66,27 +66,29 @@ class JiraTimeMachine:
             # (2) Add changes from issue's changelog:
             for change in changelog:
                 change_date = pd.to_datetime(change.created)
-                for item in change.items:
+                relevant_items = [
+                    i for i in change.items if i.field in self.tracked_field_ids
+                ]
+                for item_index, item in enumerate(relevant_items, start=1):
                     change_record = record_template.copy()
-                    if item.field in self.tracked_field_ids:
 
-                        change_record[self.record_field("Key")] = issue_id
-                        change_record[self.record_field("Type")] = "change"
-                        change_record[self.record_field("Date")] = change_date
-                        change_record[self.record_field("Author")] = getattr(
-                            change.author, "displayName", "Unknown"
-                        )
-                        change_record[self.change_field("Field")] = item.field
-                        change_record[self.change_field("From")] = (
-                            self.normalize_field_value_string(
-                                item.field, item.fromString
-                            )
-                        )
-                        change_record[self.change_field("To")] = (
-                            self.normalize_field_value_string(item.field, item.toString)
-                        )
+                    change_record[self.record_field("Key")] = issue_id
+                    change_record[self.record_field("Type")] = "change"
+                    change_record[self.record_field("Date")] = change_date
+                    change_record[self.record_field("Author")] = getattr(
+                        change.author, "displayName", "Unknown"
+                    )
+                    change_record[self.change_field("ID")] = change.id
+                    change_record[self.change_field("Item")] = item_index
+                    change_record[self.change_field("Field")] = item.field
+                    change_record[self.change_field("From")] = (
+                        self.normalize_field_value_string(item.field, item.fromString)
+                    )
+                    change_record[self.change_field("To")] = (
+                        self.normalize_field_value_string(item.field, item.toString)
+                    )
 
-                        record_dicts.append(change_record)
+                    record_dicts.append(change_record)
 
             # (3) Add the issue's current state which is only needed to reverse engineer the initial state:
             current_record = record_template.copy()
@@ -108,10 +110,37 @@ class JiraTimeMachine:
 
         history: pd.DataFrame = pd.DataFrame(record_dicts)
         history.columns = pd.MultiIndex.from_tuples(headers, names=["Section", "Field"])
+
+        # Type columns appropriately
+        history[self.record_field("Key")] = history[self.record_field("Key")].astype(
+            str
+        )
+        history[self.record_field("Type")] = history[self.record_field("Type")].astype(
+            str
+        )
+        history[self.record_field("Date")] = pd.to_datetime(
+            history[self.record_field("Date")], utc=True
+        )
+        history[self.record_field("Author")] = history[
+            self.record_field("Author")
+        ].astype(str)
+        history[self.change_field("ID")] = history[self.change_field("ID")].astype(
+            "Int64"
+        )
+        history[self.change_field("Item")] = history[self.change_field("Item")].astype(
+            "Int64"
+        )
+        history[self.change_field("Field")] = history[
+            self.change_field("Field")
+        ].astype(str)
+        # history[self.change_field("From")] = history[self.change_field("From")].astype(str)
+        # history[self.change_field("To")] = history[self.change_field("To")].astype(str)
+        # TODO: Possibly leave Change From/To as string and normalize while copying to Tracked
+
         history.sort_values(
             # Pandas type annotations for the 'by' parameter are incorrect, calling for string or
             # list of strings, but MultiIndex requires a list of tuples instead. Hence the type: ignore
-            by=[self.record_field("Key"), self.record_field("Date")],  # type: ignore
+            by=[self.record_field("Key"), self.record_field("Date"), self.change_field("Item")],  # type: ignore
             inplace=True,
         )
 
@@ -171,7 +200,7 @@ class JiraTimeMachine:
         """
         snapshot = (
             history[history[self.record_field("Date")] <= dt]
-            .sort_values(self.record_field("Date"))
+            .sort_values(by=[self.record_field("Date"), self.change_field("Item")])
             .groupby(self.record_field("Key"))
             .tail(1)
             .set_index(self.record_field("Key"))[["Tracked"]]
