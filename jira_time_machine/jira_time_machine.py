@@ -42,7 +42,7 @@ class JiraTimeMachine:
         record_dicts: List[Dict[Tuple[str, str], Any]] = []
         headers: List[Tuple[str, str]] = (
             [self.record_field(f) for f in ["Key", "Type", "Date", "Author"]]
-            + [self.change_field(f) for f in ["ID", "Field", "From", "To"]]
+            + [self.change_field(f) for f in ["ID", "Item", "Field", "From", "To"]]
             + [self.tracked_field(f) for f in tracked_fields]
         )
         record_template: Dict[Tuple[str, str], Any] = {k: np.nan for k in headers}
@@ -66,28 +66,29 @@ class JiraTimeMachine:
             # (2) Add changes from issue's changelog:
             for change in changelog:
                 change_date = pd.to_datetime(change.created)
-                for item in change.items:
+                relevant_items = [i for i in change.items if i.field in self.tracked_field_ids]
+                for item_index, item in enumerate(relevant_items, start=1):
                     change_record = record_template.copy()
-                    if item.field in self.tracked_field_ids:
 
-                        change_record[self.record_field("Key")] = issue_id
-                        change_record[self.record_field("Type")] = "change"
-                        change_record[self.record_field("Date")] = change_date
-                        change_record[self.record_field("Author")] = getattr(
-                            change.author, "displayName", "Unknown"
+                    change_record[self.record_field("Key")] = issue_id
+                    change_record[self.record_field("Type")] = "change"
+                    change_record[self.record_field("Date")] = change_date
+                    change_record[self.record_field("Author")] = getattr(
+                        change.author, "displayName", "Unknown"
+                    )
+                    change_record[self.change_field("ID")] = change.id
+                    change_record[self.change_field("Item")] = item_index
+                    change_record[self.change_field("Field")] = item.field
+                    change_record[self.change_field("From")] = (
+                        self.normalize_field_value_string(
+                            item.field, item.fromString
                         )
-                        change_record[self.change_field("ID")] = change.id
-                        change_record[self.change_field("Field")] = item.field
-                        change_record[self.change_field("From")] = (
-                            self.normalize_field_value_string(
-                                item.field, item.fromString
-                            )
-                        )
-                        change_record[self.change_field("To")] = (
-                            self.normalize_field_value_string(item.field, item.toString)
-                        )
+                    )
+                    change_record[self.change_field("To")] = (
+                        self.normalize_field_value_string(item.field, item.toString)
+                    )
 
-                        record_dicts.append(change_record)
+                    record_dicts.append(change_record)
 
             # (3) Add the issue's current state which is only needed to reverse engineer the initial state:
             current_record = record_template.copy()
