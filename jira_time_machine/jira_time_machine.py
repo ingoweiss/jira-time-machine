@@ -110,6 +110,19 @@ class JiraTimeMachine:
 
         history: pd.DataFrame = pd.DataFrame(record_dicts)
         history.columns = pd.MultiIndex.from_tuples(headers, names=["Section", "Field"])
+
+        # Type columns appropriately
+        history[self.record_field("Key")] = history[self.record_field("Key")].astype(str)
+        history[self.record_field("Type")] = history[self.record_field("Type")].astype(str)
+        history[self.record_field("Date")] = pd.to_datetime(history[self.record_field("Date")], utc=True)
+        history[self.record_field("Author")] = history[self.record_field("Author")].astype(str)
+        history[self.change_field("ID")] = history[self.change_field("ID")].astype('Int64')
+        history[self.change_field("Item")] = history[self.change_field("Item")].astype('Int64')
+        history[self.change_field("Field")] = history[self.change_field("Field")].astype(str)
+        # history[self.change_field("From")] = history[self.change_field("From")].astype(str)
+        # history[self.change_field("To")] = history[self.change_field("To")].astype(str)
+        # TODO: Possibly leave Change From/To as string and normalize while copying to Tracked
+
         history.sort_values(
             # Pandas type annotations for the 'by' parameter are incorrect, calling for string or
             # list of strings, but MultiIndex requires a list of tuples instead. Hence the type: ignore
