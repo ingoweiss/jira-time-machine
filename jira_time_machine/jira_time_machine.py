@@ -261,10 +261,10 @@ class JiraTimeMachine:
                 return [v["name"] for v in field_value]
             elif item_type == "string":
                 return [v for v in field_value]
-            else:
+            else:  # pragma: no cover
                 self.logger.warning(f"Unsupported array field item type '{item_type}'")
                 return field_value
-        else:
+        else:  # pragma: no cover
             self.logger.warning(f"Unsupported field type '{field_type}'")
             return field_value
 
@@ -287,7 +287,7 @@ class JiraTimeMachine:
             item_type = field_schema["items"]
             if item_type in ["string", "version"]:
                 return field_value.split()  # this will return [] for empty strings
-            else:
+            else:  # pragma: no cover
                 self.logger.warning(f"Unsupported array field item type '{item_type}'")
                 return field_value
         elif field_type in ["string", "status", "priority", "resolution", "user"]:
@@ -297,7 +297,7 @@ class JiraTimeMachine:
                 return JiraTimeMachine.BLANK
             else:
                 return field_value
-        else:
+        else:  # pragma: no cover
             self.logger.warning(f"Unsupported field type '{field_type}'")
             return field_value
 

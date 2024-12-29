@@ -43,3 +43,8 @@ path = "jira_time_machine/__init__.py"
 
 [tool.hatch.metadata.hooks.requirements_txt]
 files = ["requirements.txt"]
+
+[tool.coverage.run]
+omit = [
+    "tasks.py",
+    ]
