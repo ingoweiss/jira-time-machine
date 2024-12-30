@@ -268,7 +268,7 @@ class JiraTimeMachine:
             self.logger.warning(f"Unsupported field type '{field_type}'")
             return field_value
 
-    def normalize_field_value_string(self, field_id: str, field_value: Any) -> Any:
+    def normalize_field_value_string(self, field_id: str, field_value: str) -> Any:
         """
         Normalize a field value string according to its schema.
 
