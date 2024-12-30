@@ -202,7 +202,7 @@ class JiraTimeMachine:
         """
         snapshot = (
             history[history[self.record_field("Date")] <= dt]
-            .sort_values(by=[self.record_field("Date"), self.change_field("Item")])
+            .sort_values(by=[self.record_field("Date"), self.change_field("Item")]) # type: ignore
             .groupby(self.record_field("Key"))
             .tail(1)
             .set_index(self.record_field("Key"))[["Tracked"]]
@@ -353,7 +353,7 @@ class JiraTimeMachine:
         else:
             return field_info
 
-    def field_schema_by_id(self, field_id: str) -> dict:
+    def field_schema_by_id(self, field_id: str) -> Dict:
         """
         Get the field schema for a given field ID.
 
@@ -363,10 +363,10 @@ class JiraTimeMachine:
         Returns:
             dict: The field schema.
         """
-        field_info = self.field_info_by_id(field_id)
+        field_info: Dict = self.field_info_by_id(field_id)
         return field_info["schema"]
 
-    def record_field(self, field_name: str) -> tuple:
+    def record_field(self, field_name: str) -> Tuple[str, str]:
         """
         Get the record field tuple for a given field name.
 
@@ -378,7 +378,7 @@ class JiraTimeMachine:
         """
         return ("Record", field_name)
 
-    def change_field(self, field_name: str) -> tuple:
+    def change_field(self, field_name: str) -> Tuple[str, str]:
         """
         Get the change field tuple for a given field name.
 
@@ -390,7 +390,7 @@ class JiraTimeMachine:
         """
         return ("Change", field_name)
 
-    def tracked_field(self, field_name: str) -> tuple:
+    def tracked_field(self, field_name: str) -> Tuple[str, str]:
         """
         Get the tracked field tuple for a given field name.
 
