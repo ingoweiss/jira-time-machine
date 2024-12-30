@@ -202,7 +202,7 @@ class JiraTimeMachine:
         """
         snapshot = (
             history[history[self.record_field("Date")] <= dt]
-            .sort_values(by=[self.record_field("Date"), self.change_field("Item")]) # type: ignore
+            .sort_values(by=[self.record_field("Date"), self.change_field("Item")])  # type: ignore
             .groupby(self.record_field("Key"))
             .tail(1)
             .set_index(self.record_field("Key"))[["Tracked"]]
