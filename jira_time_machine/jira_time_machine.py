@@ -258,7 +258,7 @@ class JiraTimeMachine:
         elif field_schema["type"] == "array":
             item_type = field_schema["items"]
             if item_type == "version":
-                return [v["name"] for v in field_value]
+                return [v.name for v in field_value]
             elif item_type == "string":
                 return [v for v in field_value]
             else:
