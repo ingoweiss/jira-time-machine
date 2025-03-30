@@ -72,6 +72,11 @@ snapshot = jira_time_machine.snapshot(history_df, pd.Timestamp('2023-01-01'))
 | PROJ-0002 | New        |          | Major    |
 ```
 
+## Limitations
+
+- Jira Time Machine works best when stories are never deleted (but rather canceled instead if necessary), as the Jira API does not provide access to the history of deleted stories
+- Jira Time Machine cannot currently track array type fields such as "Labels" or "Fix Version(s)". I am working on adding support
+
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
