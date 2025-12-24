@@ -68,7 +68,7 @@ df = pd.DataFrame(data, index=index, columns=columns)
 **When to use:**
 - When you have logical groups of attributes (e.g., Balance vs Metadata)
 - When you want to access entire groups: `df["Balance"]`
-- When the groups have different purposes or life cycles
+- When the groups have different purposes or lifecycles
 
 ## Running the Examples
 
