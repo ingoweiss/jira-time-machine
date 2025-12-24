@@ -68,7 +68,10 @@ def benchmark_access(df_concat: pd.DataFrame, df_flat: pd.DataFrame) -> None:
     print(f"Access specific Account/Date (100 iterations):")
     print(f"  Vertical concatenation: {concat_time:.4f}s")
     print(f"  Flat columns:          {flat_time:.4f}s")
-    print(f"  Speedup:               {concat_time/flat_time:.1f}x faster")
+    if flat_time > 0:
+        print(f"  Speedup:               {concat_time/flat_time:.1f}x faster")
+    else:
+        print(f"  Speedup:               >100x faster (too fast to measure precisely)")
 
 
 def demonstrate_type_issues() -> None:

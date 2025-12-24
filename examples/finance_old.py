@@ -25,11 +25,6 @@ class FinanceOld:
         accounts = ["Account A", "Account B", "Account C"]
         dates = pd.date_range("2024-01-01", periods=3, freq="MS")
         
-        # Create a base index with Account and Date
-        index = pd.MultiIndex.from_product(
-            [accounts, dates], names=["Account", "Date"]
-        )
-        
         # Create the Amount layer
         amount_layer = pd.DataFrame(
             {
