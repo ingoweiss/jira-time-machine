@@ -155,6 +155,6 @@ Same as Approach 1, plus:
 
 **For most cases, use Approach 1 (Flat Columns with MultiIndex).**
 
-It's simple, efficient, and leverages pandas' built-in capabilities. Only use multi-level columns if you have a clear need for logical grouping.
+It's simple, efficient, and leverages pandas' built-in capabilities. Only use multi-level columns if you have a clear need for logical grouping (e.g., data from different sources or with different update frequencies).
 
 **Never use vertical concatenation** to simulate additional dimensions - it's inefficient and causes type problems.

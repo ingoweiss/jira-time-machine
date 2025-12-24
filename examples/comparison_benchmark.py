@@ -5,7 +5,6 @@ Performance and type comparison between different approaches.
 import pandas as pd
 import numpy as np
 import time
-from typing import Any
 
 
 def create_vertical_concat_df(n_accounts: int = 100, n_dates: int = 12) -> pd.DataFrame:

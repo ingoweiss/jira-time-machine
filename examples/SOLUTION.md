@@ -75,7 +75,7 @@ This is the standard pandas pattern and what the library is designed for.
 Use multi-level columns when:
 - You have logical groups of attributes (e.g., Balance vs Metadata)
 - You want to access entire groups: `df["Balance"]`
-- Groups have different purposes or lifecycles
+- Groups have different update frequencies or data sources
 - You need namespace separation
 
 For most cases, simple flat columns are sufficient and easier to work with.
