@@ -14,7 +14,8 @@ To use this script:
    - JIRA_API_TOKEN: Your Jira API token
    - JIRA_PROJECT: Project key to query (optional, default: TEST)
 
-2. Run the script:
+2. Run the script (after starting the container):
+   docker compose up -d
    docker compose exec jira-time-machine python examples/example.py
 """
 
@@ -87,9 +88,11 @@ def main():
         history_df.to_csv(output_file)
         print(f"\nHistory saved to: {output_file}")
         
-        # Get a snapshot at current time
-        snapshot = jira_time_machine.snapshot(history_df, pd.Timestamp.now())
-        print(f"\nCurrent snapshot ({len(snapshot)} issues):")
+        # Get a snapshot at a historical point in time to demonstrate the time machine
+        # Using a date from 6 months ago to show historical state
+        snapshot_date = pd.Timestamp.now() - pd.DateOffset(months=6)
+        snapshot = jira_time_machine.snapshot(history_df, snapshot_date)
+        print(f"\nSnapshot at {snapshot_date.strftime('%Y-%m-%d')} ({len(snapshot)} issues):")
         print(snapshot)
         
         # Save snapshot to CSV

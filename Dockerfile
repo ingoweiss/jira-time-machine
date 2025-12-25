@@ -14,7 +14,8 @@ ENV PYTHONUNBUFFERED=1 \
 COPY requirements.txt .
 
 # Install dependencies
-# Use --trusted-host flags to handle SSL issues in restricted environments
+# Note: Fallback with --trusted-host is for environments with SSL/proxy issues
+# In production, SSL verification should always be enabled
 RUN pip install --no-cache-dir -r requirements.txt || \
     pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org -r requirements.txt
 
@@ -22,6 +23,8 @@ RUN pip install --no-cache-dir -r requirements.txt || \
 COPY . .
 
 # Install the package in development mode
+# Note: Fallback with --trusted-host is for environments with SSL/proxy issues
+# In production, SSL verification should always be enabled
 RUN pip install -e . || \
     pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org -e .
 
