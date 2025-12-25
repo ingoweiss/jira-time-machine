@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   jira-time-machine:
     build:
@@ -8,13 +6,15 @@ services:
     container_name: jira-time-machine-app
     ports:
       - "8050:8050"
-    env_file:
-      - .env
     environment:
       # Application settings
       - HOST=${HOST:-0.0.0.0}
       - PORT=${PORT:-8050}
       - DEBUG=${DEBUG:-false}
+      # Optional Jira credentials (can also be entered via web UI)
+      - JIRA_SERVER=${JIRA_SERVER:-}
+      - JIRA_EMAIL=${JIRA_EMAIL:-}
+      - JIRA_API_TOKEN=${JIRA_API_TOKEN:-}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8050/"]
