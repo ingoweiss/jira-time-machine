@@ -12,9 +12,23 @@ Jira Time Machine gives access to the state of a Jira project's issues at any ti
 
 - [Installation](#installation)
 - [Usage](#usage)
+  - [Using Docker](#using-docker)
+  - [Using pip](#using-pip)
 - [License](#license)
 
 ## Installation
+
+### Using Docker
+
+The easiest way to get started is with Docker:
+
+```sh
+docker compose up -d
+```
+
+See [DOCKER.md](DOCKER.md) for detailed Docker usage instructions.
+
+### Using pip
 
 To install Jira Time Machine, you can use pip:
 
