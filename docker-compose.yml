@@ -1,0 +1,19 @@
+services:
+  jira-time-machine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jira-time-machine:latest
+    container_name: jira-time-machine
+    volumes:
+      # Mount the current directory for development
+      - .:/app
+      # Mount a volume for any outputs
+      - ./output:/app/output
+    environment:
+      # Add any environment variables here
+      - PYTHONUNBUFFERED=1
+    stdin_open: true
+    tty: true
+    # Override the default command to keep container running for interactive use
+    command: sleep infinity
