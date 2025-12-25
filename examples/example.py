@@ -89,8 +89,9 @@ def main():
         print(f"\nHistory saved to: {output_file}")
         
         # Get a snapshot at a historical point in time to demonstrate the time machine
-        # Using a date from 6 months ago to show historical state
-        snapshot_date = pd.Timestamp.now() - pd.DateOffset(months=6)
+        # Using a date from 180 days ago to show historical state
+        from datetime import datetime, timedelta
+        snapshot_date = pd.Timestamp(datetime.now() - timedelta(days=180))
         snapshot = jira_time_machine.snapshot(history_df, snapshot_date)
         print(f"\nSnapshot at {snapshot_date.strftime('%Y-%m-%d')} ({len(snapshot)} issues):")
         print(snapshot)

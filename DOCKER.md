@@ -52,6 +52,7 @@ Then use the library:
 ```python
 from jira import JIRA
 from jira_time_machine import JiraTimeMachine
+import pandas as pd
 
 # Initialize JIRA
 jira = JIRA(
