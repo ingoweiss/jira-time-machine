@@ -10,7 +10,6 @@ from dash import Dash, html, dcc, callback, Output, Input, State, dash_table
 import pandas as pd
 from jira import JIRA
 from jira_time_machine import JiraTimeMachine
-import plotly.express as px
 from datetime import datetime
 
 # Initialize Dash app

@@ -38,7 +38,7 @@ JIRA_API_TOKEN=your-api-token
 ### 3. Start the Application
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 This command will:
@@ -65,13 +65,13 @@ You should see the Jira Time Machine interface where you can:
 ### Stopping the Application
 
 ```bash
-docker-compose down
+docker compose down
 ```
 
 ### Viewing Logs
 
 ```bash
-docker-compose logs -f
+docker compose logs -f
 ```
 
 ### Rebuilding the Image
@@ -79,9 +79,9 @@ docker-compose logs -f
 If you make changes to the application code:
 
 ```bash
-docker-compose down
-docker-compose build --no-cache
-docker-compose up -d
+docker compose down
+docker compose build --no-cache
+docker compose up -d
 ```
 
 ### Running on a Different Port
@@ -108,7 +108,7 @@ Or set the PORT environment variable in your `.env` file (note: this changes the
 
 Check the logs:
 ```bash
-docker-compose logs
+docker compose logs
 ```
 
 ### Port already in use
@@ -146,7 +146,7 @@ To run the application in development mode with auto-reload:
 
 2. Rebuild and restart:
    ```bash
-   docker-compose up --build
+   docker compose up --build
    ```
 
 ## Security Notes
