@@ -8,4 +8,3 @@ tests/.DS_Store
 *.ipynb
 dist/
 *.pkg
-.env

@@ -12,38 +12,19 @@ Jira Time Machine gives access to the state of a Jira project's issues at any ti
 
 - [Installation](#installation)
 - [Usage](#usage)
-  - [Python Library](#python-library)
-  - [Web Application (Docker)](#web-application-docker)
-- [Limitations](#limitations)
 - [License](#license)
 
 ## Installation
 
-### Python Library
-
-To install Jira Time Machine as a Python library, you can use pip:
+To install Jira Time Machine, you can use pip:
 
 ```sh
 pip install jira-time-machine
 ```
 
-### Web Application (Docker)
-
-To run the Jira Time Machine web application using Docker:
-
-```sh
-docker compose up -d
-```
-
-Then open your browser to http://localhost:8050
-
-See [DOCKER.md](DOCKER.md) for detailed Docker setup instructions.
-
 ## Usage
 
-### Python Library
-
-#### (1) Initialization
+### (1) Initialization
 
 ```python
 from jira import JIRA
@@ -56,7 +37,7 @@ jira = JIRA(server='https://your-jira-instance.atlassian.net', basic_auth=('emai
 jira_time_machine = JiraTimeMachine(jira)
 ```
 
-#### (2) History
+### (2) History
 
 ```python
 # Specify a JQL query and fields to track
@@ -77,7 +58,7 @@ history_df = jira_time_machine.history(jql_query, fields_to_track)
 | PROJ-0002 | initial| 2022-12-15 | Dave   |          |              |             | New         |          | Major    |
 ```
 
-#### (3) Snapshot
+### (3) Snapshot
 
 ```python
 # Get a snapshot of the backlog at a specific timestamp
@@ -90,40 +71,6 @@ snapshot = jira_time_machine.snapshot(history_df, pd.Timestamp('2023-01-01'))
 | PROJ-0001 | Submitted  |          | Major    |
 | PROJ-0002 | New        |          | Major    |
 ```
-
-### Web Application (Docker)
-
-Jira Time Machine includes a web application built with Dash that provides an interactive interface for exploring your Jira project history.
-
-#### Quick Start
-
-1. Start the application:
-   ```sh
-   docker compose up -d
-   ```
-
-2. Open your browser to http://localhost:8050
-
-3. Enter your Jira credentials and query:
-   - **Jira Server URL**: `https://your-company.atlassian.net`
-   - **Email**: Your Jira account email
-   - **API Token**: Generate at https://id.atlassian.com/manage-profile/security/api-tokens
-   - **JQL Query**: `project = YOUR_PROJECT`
-   - **Fields to Track**: `Status, Assignee, Priority`
-
-4. Click "Fetch History" to load your project data
-
-5. Use the date picker to view snapshots of your project at different points in time
-
-#### Features
-
-- Interactive web interface for exploring Jira history
-- Real-time data fetching from Jira
-- Snapshot view showing issue states at any point in time
-- Full history table with all tracked changes
-- No installation required - runs entirely in Docker
-
-For detailed Docker setup instructions, troubleshooting, and advanced configuration, see [DOCKER.md](DOCKER.md).
 
 ## Limitations
 
